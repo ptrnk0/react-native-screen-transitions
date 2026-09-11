@@ -1,6 +1,6 @@
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { useAnimatedReaction } from "react-native-reanimated";
-import { scheduleOnRN } from "react-native-worklets";
+import { scheduleOnRN, scheduleOnUI } from "react-native-worklets";
 import { AnimationProgress } from "../../../../constants";
 import useStableCallback from "../../../../hooks/use-stable-callback";
 import {
@@ -46,6 +46,7 @@ export function useOpenTransitionIntent(
 	system: MotionTransitionValues,
 	onComplete?: () => void,
 ) {
+	const initialized = useRef(false);
 	const isFirstKey = useBuilderStore((store) => store.derivations.isFirstKey);
 	const { requestLifecycleTransition } = system.actions;
 	const completeOpen = useStableCallback(() => {
@@ -71,6 +72,29 @@ export function useOpenTransitionIntent(
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: Must only run once on mount
 	useLayoutEffect(() => {
+		// TODO: Find a cleaner way to handle effect setup and resumption across Activity pauses.
+		// Activity reconnects effects when a retained screen becomes visible again.
+		if (initialized.current) {
+			// Activity cleanup cancels shared-value animations; resume only unfinished opens.
+			scheduleOnUI(() => {
+				"worklet";
+				if (
+					animations.entering.get() &&
+					!animations.closing.get() &&
+					!animations.progressSettled.get() &&
+					system.pendingLifecycleRequestKind.get() ===
+						LifecycleTransitionRequestKind.None
+				) {
+					requestLifecycleTransition(
+						LifecycleTransitionRequestKind.Open,
+						system.targetProgress.get(),
+					);
+				}
+			});
+			return;
+		}
+		initialized.current = true;
+
 		const {
 			snapPoints,
 			initialSnapIndex = 0,
