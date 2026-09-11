@@ -22,33 +22,24 @@ const stackingInterpolator: ScreenTransitionConfig["screenStyleInterpolator"] =
 		return bounds(id).navigation.zoom();
 	};
 
+const stackingOptions: ScreenTransitionConfig = {
+	backdropBehavior: "dismiss",
+	gestureDirection: ["bidirectional", "pinch-in"],
+	gestureEnabled: true,
+	screenStyleInterpolator: stackingInterpolator,
+	transitionSpec: Transition.Specs.Zoom,
+};
+
 export default function StackingBoundsLayout() {
 	return (
 		<BlankStack>
 			<BlankStack.Screen
 				name="index"
 				options={({ route }) =>
-					getRouteBoundaryId(route)
-						? {
-								backdropBehavior: "dismiss",
-								gestureDirection: ["bidirectional", "pinch-in"],
-								gestureEnabled: true,
-								screenStyleInterpolator: stackingInterpolator,
-								transitionSpec: Transition.Specs.Zoom,
-							}
-						: {}
+					getRouteBoundaryId(route) ? stackingOptions : {}
 				}
 			/>
-			<BlankStack.Screen
-				name="[id]"
-				options={{
-					backdropBehavior: "dismiss",
-					gestureDirection: ["bidirectional", "pinch-in"],
-					gestureEnabled: true,
-					screenStyleInterpolator: stackingInterpolator,
-					transitionSpec: Transition.Specs.Zoom,
-				}}
-			/>
+			<BlankStack.Screen name="[id]" options={stackingOptions} />
 		</BlankStack>
 	);
 }
