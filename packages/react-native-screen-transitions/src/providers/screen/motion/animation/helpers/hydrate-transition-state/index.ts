@@ -190,7 +190,9 @@ export const hydrateTransitionState = (
 
 	out.meta = s.meta;
 	out.options = options;
-	out.route = s.route;
+	// navigate() can replace params on a route that is still closing. Its
+	// interpolator must finish with the identity that began that close.
+	if (!out.closing || out.route.key !== s.route.key) out.route = s.route;
 	out.layouts.screen.width = dimensions.width;
 	out.layouts.screen.height = dimensions.height;
 

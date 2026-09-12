@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "bun:test";
-import { resolvePortalOffsetStyle } from "../../components/boundary/portal/components/boundary-portal/helpers/offset-style";
+import { resolvePortalOffsetStyle } from "../../components/boundary/portal/helpers/offset-style";
 import { BoundStore, type Snapshot } from "../../stores/bounds";
 import {
 	createPendingPairKey,

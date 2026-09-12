@@ -1,13 +1,12 @@
 import { useSyncExternalStore } from "react";
 import type { SharedValue } from "react-native-reanimated";
-import type { NormalizedTransitionInterpolatedStyle } from "../../../../../../types/animation.types";
-import type { BoundaryLocalMeasurementValue } from "../../../../types";
+import type { NormalizedTransitionInterpolatedStyle } from "../../../../types/animation.types";
+import type { BoundaryLocalMeasurementValue } from "../../types";
 
 export type ActivePortalBoundaryHost = {
 	boundaryId: string;
 	hostKey: string;
 	localMeasurement: BoundaryLocalMeasurementValue;
-	pairKey: string;
 	portalHostName: string;
 	portalHostReady: SharedValue<boolean>;
 	slotsMap: SharedValue<NormalizedTransitionInterpolatedStyle>;
@@ -56,7 +55,6 @@ const isSameHost = (
 		a.boundaryId === b.boundaryId &&
 		a.hostKey === b.hostKey &&
 		a.localMeasurement === b.localMeasurement &&
-		a.pairKey === b.pairKey &&
 		a.portalHostName === b.portalHostName &&
 		a.portalHostReady === b.portalHostReady &&
 		a.slotsMap === b.slotsMap

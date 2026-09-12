@@ -10,20 +10,15 @@ import type { View } from "react-native";
 import type { AnimatedRef } from "react-native-reanimated";
 import { useAnimatedRef, useSharedValue } from "react-native-reanimated";
 import { useBuilderStore } from "../../../providers/screen/builder";
-import {
-	useComposedSlotStyles,
-	useSlotStackingStyles,
-} from "../../../providers/screen/orchestrator/styles";
 import { useBlankStackStore } from "../../../providers/stack/blank-stack.provider";
 import { createBoundTag } from "../../../stores/bounds/helpers/link-pairs.helpers";
 import type { BoundTag } from "../../../stores/bounds/types";
 import createProvider from "../../../utils/create-provider";
 import { logger } from "../../../utils/logger";
 import { BoundaryLifecycle } from "../components/boundary-lifecycle";
-import {
-	type BoundaryPortalRuntime,
-	resolveBoundaryPortal,
-} from "../portal/utils/resolve-portal";
+import { useBoundaryPresentation } from "../hooks/use-boundary-presentation";
+import { useComposedBoundaryStyle } from "../hooks/use-composed-boundary-style";
+import { resolveBoundaryPortal } from "../portal/utils/resolve-portal";
 import type {
 	BoundaryConfigProps,
 	BoundaryId,
@@ -42,13 +37,17 @@ export const TARGET_OUTSIDE_ROOT_WARNING =
 	"Boundary.Target must be rendered inside Transition.Boundary or a component created by createBoundaryComponent.";
 
 export type BoundaryRootRenderState = {
+	boundaryPresentation: ReturnType<
+		typeof useBoundaryPresentation
+	>["presentation"];
+	slotsMap: ReturnType<typeof useBoundaryPresentation>["slotsMap"];
 	attachedStyle: unknown;
 	boundTag: BoundTag;
 	currentScreenKey: string;
 	handoffEnabled: boolean;
 	localMeasurement: BoundaryLocalMeasurementValue;
 	measurementRef: AnimatedRef<View>;
-	portalRuntime: BoundaryPortalRuntime;
+	portalRuntime: ReturnType<typeof resolveBoundaryPortal>;
 	ref: AnimatedRef<View>;
 	shouldRenderBoundaryRootThroughPortal: boolean;
 	shouldRenderHandoffHost: boolean;
@@ -94,10 +93,10 @@ export const {
 			() => createBoundTag(String(id), group),
 			[id, group],
 		);
-		const portalRuntime = resolveBoundaryPortal({
-			handoff,
-			escapeClipping,
-		});
+		const portalRuntime = useMemo(
+			() => resolveBoundaryPortal({ handoff, escapeClipping }),
+			[handoff, escapeClipping],
+		);
 
 		const currentScreenKey = useBuilderStore(
 			(s) => s.derivations.currentScreenKey,
@@ -124,8 +123,24 @@ export const {
 		const shouldAttachAssociatedStyles = enabled;
 		const shouldEscapeBoundaryRootToScreenHost = portalRuntime.escapeClipping;
 
-		const associatedStyles = useComposedSlotStyles(boundTag.tag, style);
-		const associatedStackingStyles = useSlotStackingStyles(boundTag.tag);
+		const { presentation: boundaryPresentation, slotsMap } =
+			useBoundaryPresentation(
+				boundTag.tag,
+				enabled && (portalRuntime.handoff || portalRuntime.escapeClipping),
+			);
+
+		const associatedStyles = useComposedBoundaryStyle(
+			slotsMap,
+			boundTag.tag,
+			style,
+		);
+		const associatedStackingStyles = useComposedBoundaryStyle(
+			slotsMap,
+			boundTag.tag,
+			undefined,
+			"stacking",
+		);
+
 		const rootRef = useAnimatedRef<View>();
 		const measurementRef = useAnimatedRef<View>();
 		const localMeasurement = useSharedValue<BoundaryLocalMeasurement | null>(
@@ -165,6 +180,8 @@ export const {
 
 		const value = useMemo<BoundaryRootContextValue>(
 			() => ({
+				boundaryPresentation,
+				slotsMap,
 				attachedStyle,
 				boundTag,
 				currentScreenKey,
@@ -177,6 +194,8 @@ export const {
 				shouldRenderHandoffHost: handoffEnabled && !hasTarget,
 			}),
 			[
+				boundaryPresentation,
+				slotsMap,
 				attachedStyle,
 				boundTag,
 				currentScreenKey,

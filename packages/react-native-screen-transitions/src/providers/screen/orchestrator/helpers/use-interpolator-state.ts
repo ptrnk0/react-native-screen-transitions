@@ -1,5 +1,8 @@
-import { useMemo } from "react";
-import { createScreenTransitionState } from "../../../../constants";
+import { useMemo, useState } from "react";
+import {
+	createScreenTransitionState,
+	DEFAULT_SCREEN_TRANSITION_STATE,
+} from "../../../../constants";
 import type {
 	BuiltState,
 	MotionAnimationState,
@@ -10,6 +13,12 @@ import type {
 export function useInterpolatorState(
 	motion: MotionAnimationState | null,
 ): BuiltState | undefined {
+	// The UI output survives descriptor updates; hydration owns its contents.
+	const [unwrapped] = useState(() =>
+		createScreenTransitionState(
+			motion?.route ?? DEFAULT_SCREEN_TRANSITION_STATE.route,
+		),
+	);
 	return useMemo(
 		() =>
 			motion
@@ -18,13 +27,9 @@ export function useInterpolatorState(
 						gesture: motion,
 						optionsSlot: {},
 						contentLayoutSlot: { width: 0, height: 0 },
-						unwrapped: createScreenTransitionState(
-							motion.route,
-							motion.meta,
-							motion.options,
-						),
+						unwrapped,
 					}
 				: undefined,
-		[motion],
+		[motion, unwrapped],
 	);
 }

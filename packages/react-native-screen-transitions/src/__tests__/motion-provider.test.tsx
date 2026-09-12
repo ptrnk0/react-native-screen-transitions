@@ -39,7 +39,7 @@ mock.module("react-native-gesture-handler", () => ({
 }));
 
 const key = "motion-provider-test";
-const route = { key, name: key };
+let route: { key: string; name: string; params?: { id: string } } = { key, name: key };
 const routes = [{ key: "previous", name: "previous" }, route];
 const navigation = { getState: () => ({ routes }) };
 let options = {
@@ -104,6 +104,7 @@ function tree(mode: "visible" | "hidden" = "visible") {
 }
 const originalRaf = globalThis.requestAnimationFrame;
 beforeEach(() => {
+	route = { key, name: key };
 	globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 	options = {
 		...options,
@@ -284,3 +285,28 @@ it("derives local readiness before the Motion store is registered", () => {
 	expect(beforeRegistration).toBe(false);
 	expect(getMotionStore(key).isScreenReady.get()).toBe(false);
 });
+
+ it("keeps the closing route params through descriptor updates while its clock advances", () => {
+  route = {key, name:key, params:{id:"photo-a"}};
+  act(() => {renderer = create(tree());});
+  const dimensions = {width:390,height:844};
+  hydrateTransitionState(readerA, dimensions);
+  local.state.closing.set(1);
+  local.state.transitionProgress.set(0.25);
+  const output = hydrateTransitionState(readerA, dimensions);
+  expect(output.route.params).toEqual({id:"photo-a"});
+  route = {...route,params:{id:"photo-b"}};
+  act(() => {renderer!.update(tree());});
+  local.state.transitionProgress.set(0.1);
+  const updated = hydrateTransitionState(readerA, dimensions);
+  expect(updated.route.params).toEqual({id:"photo-a"});
+  expect(updated.transitionProgress).toBe(0.1);
+  local.state.transitionProgress.set(0);
+  expect(hydrateTransitionState(readerA,dimensions).route.params).toEqual({id:"photo-a"});
+  local.state.closing.set(0);
+  expect(hydrateTransitionState(readerA,dimensions).route.params).toEqual({id:"photo-b"});
+  local.state.closing.set(1);
+  route = {key:"another-route",name:key,params:{id:"photo-c"}};
+  act(() => {renderer!.update(tree());});
+  expect(hydrateTransitionState(readerA,dimensions).route.params).toEqual({id:"photo-c"});
+ });

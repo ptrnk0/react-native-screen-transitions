@@ -7,7 +7,7 @@ import {
 	useSlotProps,
 	useSlotStyles,
 } from "../../../../providers/screen/orchestrator/styles";
-import { ScreenFallbackHost } from "../../../boundary/portal/components/boundary-portal/components/host";
+import { PortalOverlay } from "../../../boundary/portal/components/portal-overlay";
 import { LayerComponent } from "../helpers/layer-component";
 import { useContentLayout } from "../hooks/use-content-layout";
 import { Clip } from "./clip";
@@ -57,7 +57,7 @@ export const ContentLayer = memo(
 						<SurfaceLayer pointerEvents={contentPointerEvents}>
 							{screenChildren}
 						</SurfaceLayer>
-						<ScreenFallbackHost />
+						<PortalOverlay fallback />
 					</Clip>
 				</LayerComponent>
 			</GestureDetector>

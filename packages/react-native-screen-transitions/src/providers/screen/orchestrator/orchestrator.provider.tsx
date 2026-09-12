@@ -7,6 +7,7 @@ import createProvider from "../../../utils/create-provider";
 import { useBuilderStore } from "../builder";
 import { useMotionStore } from "../motion";
 import { useScreenAnimationPipeline } from "./helpers/pipeline";
+import { usePairPresentation } from "./helpers/use-pair-presentation";
 import { useRegisterGestureOwnership } from "./hooks/use-register-gesture-ownership";
 import { useInterpolatedStylesMap } from "./styles/hooks/use-interpolated-style-maps";
 import { useResolvedStylesMap } from "./styles/hooks/use-resolved-slot-style-map";
@@ -21,6 +22,7 @@ export type OrchestratorState = ReturnType<
 	typeof useScreenAnimationPipeline
 > & {
 	boundsAccessor: BoundsAccessor;
+	pairPresentation: ReturnType<typeof usePairPresentation>;
 	slotsMap: SharedValue<NormalizedTransitionInterpolatedStyle>;
 };
 
@@ -37,6 +39,7 @@ export const {
 	const gestures = useMotionStore((store) => store.gestures);
 
 	const pipeline = useScreenAnimationPipeline();
+	const pairPresentation = usePairPresentation(pipeline);
 
 	const localStylesMaps = useInterpolatedStylesMap({ pipeline });
 	const slotsMap = useResolvedStylesMap({ localStylesMaps });
@@ -62,6 +65,7 @@ export const {
 		key: currentScreenKey,
 		value: {
 			...pipeline,
+			pairPresentation,
 			boundsAccessor,
 			slotsMap,
 		},
