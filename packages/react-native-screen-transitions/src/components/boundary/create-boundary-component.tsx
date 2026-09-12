@@ -47,6 +47,11 @@ export function createBoundaryComponent<P extends object>(
 			...rest
 		} = props as any;
 
+		const config = useMemo(
+			() => ({ anchor, scaleMode, target, method }),
+			[anchor, scaleMode, target, method],
+		);
+
 		const targetResolution = useMemo(() => {
 			return resolveBoundaryTarget(children, {
 				isTarget: (element) => element.type === BoundaryTarget,
@@ -63,7 +68,7 @@ export function createBoundaryComponent<P extends object>(
 
 		return (
 			<BoundaryRootProvider
-				config={{ anchor, scaleMode, target, method }}
+				config={config}
 				enabled={enabled}
 				escapeClipping={escapeClipping}
 				forwardedRef={forwardedRef}

@@ -37,22 +37,11 @@ const BoundaryTargetInner = (props: InternalBoundaryTargetProps) => {
 	const shouldEscapeTargetToScreenHost =
 		isActiveTarget && portalRuntime?.escapeClipping === true;
 
-	const shouldApplyAssociatedStyleInline =
-		isActiveTarget && portalRuntime?.escapeClipping !== true;
-	const shouldApplyPortalLayoutStyle =
-		isActiveTarget && portalRuntime?.escapeClipping === true;
-
 	const associatedTargetStyles = useComposedBoundaryStyle(
 		rootContext?.slotsMap,
-		rootContext?.boundTag.tag,
+		boundaryId,
 		style,
-	);
-
-	const portalLayoutStyle = useComposedBoundaryStyle(
-		rootContext?.slotsMap,
-		rootContext?.boundTag.tag,
-		undefined,
-		"layout",
+		shouldEscapeTargetToScreenHost ? "layout" : "full",
 	);
 
 	const measurementRef = isActiveTarget
@@ -76,11 +65,7 @@ const BoundaryTargetInner = (props: InternalBoundaryTargetProps) => {
 				{...rest}
 				pointerEvents={pointerEvents}
 				ref={shouldEscapeTargetToScreenHost ? undefined : measurementRef}
-				style={[
-					style,
-					shouldApplyAssociatedStyleInline ? associatedTargetStyles : undefined,
-					shouldApplyPortalLayoutStyle ? portalLayoutStyle : undefined,
-				]}
+				style={[style, isActiveTarget ? associatedTargetStyles : undefined]}
 				collapsable={false}
 			>
 				<Portal mode="handoff" boundaryId={boundaryId} enabled={handoffEnabled}>

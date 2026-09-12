@@ -25,26 +25,17 @@ let snapshot: PortalSnapshot = {
 	hostsByScope: {},
 };
 
-const buildSnapshot = (): PortalSnapshot => {
-	const hostsByScope: Record<string, ActivePortalBoundaryHost[]> = {};
-
-	for (const host of activeBoundaryHosts.values()) {
-		const hosts = hostsByScope[host.hostKey] ?? [];
-		hosts.push(host);
-		hostsByScope[host.hostKey] = hosts;
+// Preserve other overlays' snapshots so a registration only rerenders its owners.
+const emit = (...hostKeys: string[]) => {
+	const hostsByScope = { ...snapshot.hostsByScope };
+	for (const hostKey of new Set(hostKeys)) {
+		hostsByScope[hostKey] = Array.from(activeBoundaryHosts.values()).filter(
+			(host) => host.hostKey === hostKey,
+		);
+		if (!hostsByScope[hostKey].length) delete hostsByScope[hostKey];
 	}
-
-	return {
-		hostsByScope,
-	};
-};
-
-const emit = () => {
-	snapshot = buildSnapshot();
-
-	for (const listener of listeners) {
-		listener();
-	}
+	snapshot = { hostsByScope };
+	for (const listener of listeners) listener();
 };
 
 const isSameHost = (
@@ -68,17 +59,21 @@ export const mountPortalBoundaryHost = (host: ActivePortalBoundaryHost) => {
 	}
 
 	activeBoundaryHosts.set(host.portalHostName, host);
-	emit();
+	emit(host.hostKey, previous?.hostKey ?? host.hostKey);
 };
 
 export const unmountPortalBoundaryHostByName = (
 	portalHostName: string | null | undefined,
 ) => {
-	if (!portalHostName || !activeBoundaryHosts.delete(portalHostName)) {
+	const host = portalHostName
+		? activeBoundaryHosts.get(portalHostName)
+		: undefined;
+	if (!host) {
 		return;
 	}
 
-	emit();
+	activeBoundaryHosts.delete(host.portalHostName);
+	emit(host.hostKey);
 };
 
 const subscribe = (listener: () => void) => {

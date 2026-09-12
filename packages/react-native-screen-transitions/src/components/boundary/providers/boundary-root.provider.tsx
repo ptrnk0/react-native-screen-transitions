@@ -133,12 +133,7 @@ export const {
 			slotsMap,
 			boundTag.tag,
 			style,
-		);
-		const associatedStackingStyles = useComposedBoundaryStyle(
-			slotsMap,
-			boundTag.tag,
-			undefined,
-			"stacking",
+			hasTarget ? "stacking" : "full",
 		);
 
 		const rootRef = useAnimatedRef<View>();
@@ -170,13 +165,11 @@ export const {
 		// Host-only handoff receivers still need the associated style: their
 		// handoff host is absolute-filled inside this root, so the root is the
 		// visual frame that animates the received payload.
-		const attachedStyle = shouldAttachAssociatedStyles
-			? hasTarget
-				? associatedStackingStyles
-				: shouldRenderBoundaryRootThroughPortal
-					? undefined
-					: associatedStyles
-			: undefined;
+		const attachedStyle =
+			shouldAttachAssociatedStyles &&
+			(hasTarget || !shouldRenderBoundaryRootThroughPortal)
+				? associatedStyles
+				: undefined;
 
 		const value = useMemo<BoundaryRootContextValue>(
 			() => ({
