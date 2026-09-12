@@ -6,14 +6,8 @@ export type HostRegistration = {
 	fallback: boolean;
 };
 
-type HostRegistrySnapshot = Record<string, string>;
-
-const EMPTY_SNAPSHOT: HostRegistrySnapshot = {};
-
 const listeners = new Set<() => void>();
 const hostStacks = new Map<string, HostRegistration[]>();
-
-let snapshot: HostRegistrySnapshot = EMPTY_SNAPSHOT;
 
 /**
  * The active host for a screen. Stack ordering is the load-bearing invariant:
@@ -39,19 +33,7 @@ const getActiveHostFromStack = (
 	return stack[0]?.hostKey ?? screenKey;
 };
 
-const buildSnapshot = (): HostRegistrySnapshot => {
-	const nextSnapshot: HostRegistrySnapshot = {};
-
-	for (const [screenKey, stack] of hostStacks) {
-		nextSnapshot[screenKey] = getActiveHostFromStack(screenKey, stack);
-	}
-
-	return nextSnapshot;
-};
-
 const emit = () => {
-	snapshot = buildSnapshot();
-
 	for (const listener of listeners) {
 		listener();
 	}
@@ -116,7 +98,7 @@ export const unregisterHost = (screenKey: string, hostKey: string) => {
 };
 
 export const getActiveHostKey = (screenKey: string) => {
-	return snapshot[screenKey] ?? screenKey;
+	return getActiveHostFromStack(screenKey, hostStacks.get(screenKey));
 };
 
 export const useActiveHostKey = (screenKey?: string | null) => {
@@ -129,6 +111,5 @@ export const useActiveHostKey = (screenKey?: string | null) => {
 
 export const resetHostRegistry = () => {
 	hostStacks.clear();
-	snapshot = EMPTY_SNAPSHOT;
 	emit();
 };

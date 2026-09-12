@@ -11,7 +11,7 @@ const AnimatedHost = NativePortalHost
  * The native receiving point for a Portal whose destination matches `name`.
  *
  * Handoff places this inside a boundary, filling its local frame. Escape-clipping
- * places it inside a PortalOverlay via BoundaryPortalPlacement, which supplies
+ * places it inside a PortalOverlay, which supplies
  * the boundary's size, offset, and animated styles. This component only renders
  * the receiver; destination selection and measurement belong to its callers.
  */
