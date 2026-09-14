@@ -140,6 +140,8 @@ export const useInterpolatedStylesMap = ({
 		nextScreenKey ?? null,
 		(store) => store.state,
 	);
+
+	const hasNextSystem = !!nextSystem;
 	const { closing: activeClosing, entering: activeEntering } =
 		nextSystem ?? currentSystem;
 
@@ -216,7 +218,7 @@ export const useInterpolatedStylesMap = ({
 		const currentOwnsInterpolator =
 			isInGestureMode ||
 			!nextInterpolator ||
-			!nextSystem ||
+			!hasNextSystem ||
 			isOpeningBlocked ||
 			hasCloseFinished;
 		const interpolatorOptionsOwner = currentOwnsInterpolator

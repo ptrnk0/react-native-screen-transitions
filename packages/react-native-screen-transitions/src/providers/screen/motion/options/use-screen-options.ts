@@ -7,9 +7,51 @@ import type { ScreenOptionsContextValue, ScreenOptionsState } from "./types";
 export function useScreenOptions(): ScreenOptionsContextValue {
 	const options = useBuilderStore((store) => store.options);
 
+	const {
+		gestureEnabled,
+		gestureTracking,
+		gestureDirection,
+		gestureSensitivity,
+		gestureVelocityImpact,
+		gestureSnapVelocityImpact,
+		gestureReleaseVelocityScale,
+		gestureSnapLocked,
+		sheetSnapBehavior,
+		sheetScrollGestureBehavior,
+		backdropBehavior,
+		transitionSpec,
+	} = options;
+
 	const baseScreenOptions = useMemo(
-		() => resolveBaseScreenOptions(options),
-		[options],
+		() =>
+			resolveBaseScreenOptions({
+				gestureEnabled,
+				gestureTracking,
+				gestureDirection,
+				gestureSensitivity,
+				gestureVelocityImpact,
+				gestureSnapVelocityImpact,
+				gestureReleaseVelocityScale,
+				gestureSnapLocked,
+				sheetSnapBehavior,
+				sheetScrollGestureBehavior,
+				backdropBehavior,
+				transitionSpec,
+			}),
+		[
+			gestureEnabled,
+			gestureTracking,
+			gestureDirection,
+			gestureSensitivity,
+			gestureVelocityImpact,
+			gestureSnapVelocityImpact,
+			gestureReleaseVelocityScale,
+			gestureSnapLocked,
+			sheetSnapBehavior,
+			sheetScrollGestureBehavior,
+			backdropBehavior,
+			transitionSpec,
+		],
 	);
 
 	const initialScreenOptions = useMemo<ScreenOptionsState>(

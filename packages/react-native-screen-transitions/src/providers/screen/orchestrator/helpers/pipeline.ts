@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useState } from "react";
 import { useWindowDimensions } from "react-native";
 import {
 	type DerivedValue,
@@ -16,7 +16,6 @@ import type {
 	ScreenStyleInterpolator,
 	ScreenTransitionState,
 } from "../../../../types/animation.types";
-import { useOptionalBlankStackStore } from "../../../stack/blank-stack.provider";
 import { type BaseDescriptor, useBuilderStore } from "../../builder";
 import { useMotionStore, useOptionalMotionStore } from "../../motion";
 import { buildScreenTransitionOptions } from "../../motion/animation/helpers/build-screen-transition-options";
@@ -30,8 +29,7 @@ import { updateDerivations } from "./derivations";
 import type { SelectedInterpolatorOptions } from "./selected-interpolator-options";
 import { readStackProgress, type StackProgressEntry } from "./stack-progress";
 import { useInterpolatorState } from "./use-interpolator-state";
-
-const NO_ROUTE_KEYS: readonly string[] = [];
+import { useStackProgressInputs } from "./use-stack-progress-inputs";
 
 export type ScreenInterpolatorFrame = Omit<
 	ScreenInterpolationProps,
@@ -261,22 +259,14 @@ const hydrateInterpolatorFrame = <TFrame extends ScreenInterpolatorFrame>({
 };
 
 export function useScreenAnimationPipeline(): ScreenAnimationPipeline {
-	const routeKeys = useOptionalBlankStackStore(
-		(store) => store?.routeKeys ?? NO_ROUTE_KEYS,
+	const currentRouteKey = useBuilderStore(
+		(store) => store.descriptors.current.route.key,
 	);
 	const dimensions = useWindowDimensions();
 	const insets = useSafeAreaInsets();
-	const stackMotions = useMotionStore(routeKeys);
-	const stackProgressEntries = useMemo(
-		() =>
-			routeKeys.flatMap((routeKey, index) => {
-				const motion = stackMotions[index];
-				return motion
-					? [{ routeKey, visualProgress: motion.state.visualProgress }]
-					: [];
-			}),
-		[routeKeys, stackMotions],
-	);
+
+	const { entries: liveStackProgressEntries, revision: stackProgressRevision } =
+		useStackProgressInputs(currentRouteKey);
 
 	const currDescriptor = useBuilderStore((store) => store.descriptors.current);
 	const nextDescriptor = useBuilderStore((store) => store.descriptors.next);
@@ -293,18 +283,15 @@ export function useScreenAnimationPipeline(): ScreenAnimationPipeline {
 	const currentAnimation = useInterpolatorState(currentMotion);
 	const nextAnimation = useInterpolatorState(nextMotion);
 	const prevAnimation = useInterpolatorState(previousMotion);
-	const currentRouteKey = currDescriptor.route.key;
 
-	const initialInterpolatorProps = useMemo(
-		() =>
-			createInitialInterpolatorProps({
-				dimensions,
-				insets,
-				currentDescriptor: currDescriptor,
-				nextDescriptor,
-				prevDescriptor,
-			}),
-		[dimensions, insets, currDescriptor, nextDescriptor, prevDescriptor],
+	const [initialInterpolatorProps] = useState(() =>
+		createInitialInterpolatorProps({
+			dimensions,
+			insets,
+			currentDescriptor: currDescriptor,
+			nextDescriptor,
+			prevDescriptor,
+		}),
 	);
 
 	const selectedInterpolatorOptions =
@@ -314,6 +301,7 @@ export function useScreenAnimationPipeline(): ScreenAnimationPipeline {
 	const screenInterpolatorProps = useDerivedValue<ScreenInterpolatorFrame>(
 		() => {
 			"worklet";
+			stackProgressRevision.get();
 			const interpolatorOptions = selectedInterpolatorOptions.get();
 			return hydrateInterpolatorFrame({
 				frame: { ...initialInterpolatorProps },
@@ -323,7 +311,7 @@ export function useScreenAnimationPipeline(): ScreenAnimationPipeline {
 				nextAnimation,
 				prevAnimation,
 				interpolatorOptions,
-				stackProgressEntries,
+				stackProgressEntries: liveStackProgressEntries.get(),
 				currentRouteKey,
 			});
 		},

@@ -1,8 +1,11 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { useLayoutEffect, useState } from "react";
+import { type ReactNode, useLayoutEffect, useState } from "react";
 import type { SharedValue } from "react-native-reanimated";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
-import { BuilderStoreProvider } from "../../../providers/screen/builder/builder.provider";
+import {
+	BuilderStoreProvider,
+	getBuilderStore,
+} from "../../../providers/screen/builder/builder.provider";
 import { deriveDescriptorDerivations } from "../../../providers/screen/builder/helpers/derive-descriptor-derivations";
 import {
 	getMotionStore,
@@ -21,6 +24,8 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 let renderer: ReactTestRenderer | undefined;
 const liveScreens = new Set<string>();
+const liveLifecycles = new Set<string>();
+const lifecycleMounts = new Map<string, number>();
 const mountedStates = new Map<string, object>();
 const progressByKey = new Map<string, SharedValue<number>>();
 
@@ -39,7 +44,21 @@ function ScreenProbe({ routeKey }: { routeKey: string }) {
 	return null;
 }
 
-function stack(routeKeys: string[]) {
+function LifecycleProbe({ routeKey }: { routeKey: string }) {
+	useLayoutEffect(() => {
+		liveLifecycles.add(routeKey);
+		lifecycleMounts.set(routeKey, (lifecycleMounts.get(routeKey) ?? 0) + 1);
+		return () => {
+			liveLifecycles.delete(routeKey);
+		};
+	}, [routeKey]);
+	return null;
+}
+
+function stack(
+	routeKeys: string[],
+	retainedRow?: ReactNode,
+) {
 	const routes = routeKeys.map((key) => ({ key, name: "detail" }));
 	const navigation = {
 		getState: () => ({ routes, index: routes.length - 1, key: "stack" }),
@@ -71,26 +90,33 @@ function stack(routeKeys: string[]) {
 	};
 	return (
 		<BlankStackStoreProvider value={value}>
+			{retainedRow}
 			{scenes.map((scene, index) => {
 				const descriptors = {
 					current: scene.descriptor,
 					previous: scenes[index - 1]?.descriptor,
 					next: scenes[index + 1]?.descriptor,
 				};
+				const content = <ScreenProbe routeKey={scene.route.key} />;
+				const providers = (
+					<BuilderStoreProvider
+						key={scene.route.key}
+						storeKey={scene.route.key}
+						value={{
+							descriptors,
+							derivations: deriveDescriptorDerivations(descriptors),
+							options: scene.descriptor.options,
+						}}
+					>
+						<MotionProvider>
+							{content}
+							<LifecycleProbe routeKey={scene.route.key} />
+						</MotionProvider>
+					</BuilderStoreProvider>
+				);
 				return (
 					<ActivityScreen key={scene.route.key} routeKey={scene.route.key}>
-						<BuilderStoreProvider
-							storeKey={scene.route.key}
-							value={{
-								descriptors,
-								derivations: deriveDescriptorDerivations(descriptors),
-								options: scene.descriptor.options,
-							}}
-						>
-							<MotionProvider>
-								<ScreenProbe routeKey={scene.route.key} />
-							</MotionProvider>
-						</BuilderStoreProvider>
+						{providers}
 					</ActivityScreen>
 				);
 			})}
@@ -103,11 +129,71 @@ afterEach(() => {
 	renderer = undefined;
 	for (const key of progressByKey.keys()) ScrollStore.clearBag(key);
 	liveScreens.clear();
+	liveLifecycles.clear();
+	lifecycleMounts.clear();
 	mountedStates.clear();
 	progressByKey.clear();
 });
 
 describe("ActivityScreen", () => {
+	it("pauses provider and lifecycle effects while preserving their state for resume", () => {
+		const routeKeys: string[] = [];
+		const initialProgress = new Map<string, SharedValue<number>>();
+		const initialContent = new Map<string, object>();
+		const expectedLifecycleMounts = new Map<string, number>();
+		for (let depth = 1; depth <= 12; depth++) {
+			const key = `content-${depth}`;
+			routeKeys.push(key);
+			act(() => {
+				const tree = stack([...routeKeys]);
+				if (renderer) renderer.update(tree);
+				else renderer = create(tree);
+			});
+			initialProgress.set(key, progressByKey.get(key)!);
+			initialContent.set(key, mountedStates.get(key)!);
+			expectedLifecycleMounts.set(key, 1);
+			expect([...liveScreens].sort()).toEqual(routeKeys.slice(-2).sort());
+			for (const pausedKey of routeKeys.slice(0, -2)) {
+				expect(() => getBuilderStore(pausedKey)).toThrow();
+				expect(() => getMotionStore(pausedKey)).toThrow();
+			}
+			expect([...liveLifecycles].sort()).toEqual(routeKeys.slice(-2).sort());
+			for (const currentKey of routeKeys.slice(-2)) {
+				expect(getBuilderStore(currentKey).descriptors.current.route.key).toBe(
+					currentKey,
+				);
+				expect(getMotionStore(currentKey).state.transitionProgress).toBe(
+					initialProgress.get(currentKey),
+				);
+				expect(lifecycleMounts.get(currentKey)).toBe(1);
+			}
+		}
+		while (routeKeys.length > 1) {
+			const previouslyLive = new Set(liveLifecycles);
+			const removed = routeKeys.pop()!;
+			act(() => renderer!.update(stack([...routeKeys])));
+			expect(() => getMotionStore(removed)).toThrow();
+			expect(() => getBuilderStore(removed)).toThrow();
+			expect([...liveLifecycles].sort()).toEqual(routeKeys.slice(-2).sort());
+			expect([...liveScreens].sort()).toEqual(routeKeys.slice(-2).sort());
+			for (const pausedKey of routeKeys.slice(0, -2)) {
+				expect(() => getBuilderStore(pausedKey)).toThrow();
+				expect(() => getMotionStore(pausedKey)).toThrow();
+			}
+			for (const key of routeKeys.slice(-2)) {
+				expect(getMotionStore(key).state.transitionProgress).toBe(
+					initialProgress.get(key),
+				);
+				if (!previouslyLive.has(key)) {
+					expectedLifecycleMounts.set(key, expectedLifecycleMounts.get(key)! + 1);
+				}
+				expect(lifecycleMounts.get(key)).toBe(expectedLifecycleMounts.get(key));
+			}
+			for (const key of liveScreens)
+				expect(mountedStates.get(key)).toBe(initialContent.get(key));
+		}
+	});
+
 	it("keeps only the front two screens live through repeated pushes and pops", () => {
 		const routeKeys: string[] = [];
 		for (let depth = 1; depth <= 12; depth++) {

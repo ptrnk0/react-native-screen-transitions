@@ -187,7 +187,9 @@ it("shares current-screen motion while isolating each orchestrator's output and 
 		renderer = create(tree());
 	});
 	expect(readerA.transitionProgress).toBe(readerB.transitionProgress);
-	expect(readerA.gesture).toBe(readerB.gesture);
+	expect(readerA.gesture).toEqual(readerB.gesture);
+	expect(readerA.gesture.x).toBe(readerB.gesture.x);
+	expect(readerA.gesture.internal.snapshot).toBe(readerB.gesture.internal.snapshot);
 	const first = hydrateTransitionState(
 		readerA,
 		{ width: 390, height: 844 },

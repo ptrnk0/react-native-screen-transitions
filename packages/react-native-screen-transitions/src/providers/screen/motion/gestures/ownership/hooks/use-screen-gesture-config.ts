@@ -5,13 +5,57 @@ import type { ScreenGestureConfig } from "../../types";
 
 export function useScreenGestureConfig(): ScreenGestureConfig {
 	const options = useBuilderStore((store) => store.options);
+
+	const {
+		gestureDirection,
+		gestureEnabled,
+		gestureReleaseVelocityScale,
+		gestureSensitivity,
+		gestureSnapLocked,
+		gestureSnapVelocityImpact,
+		gestureTracking,
+		gestureVelocityImpact,
+		sheetScrollGestureBehavior,
+		sheetSnapBehavior,
+		snapPoints,
+		transitionSpec,
+	} = options;
+
 	const isFirstKey = useBuilderStore((store) => store.derivations.isFirstKey);
+
 	return useMemo(
 		() =>
 			resolveScreenGestureConfig({
-				options,
+				options: {
+					gestureDirection,
+					gestureEnabled,
+					gestureReleaseVelocityScale,
+					gestureSensitivity,
+					gestureSnapLocked,
+					gestureSnapVelocityImpact,
+					gestureTracking,
+					gestureVelocityImpact,
+					sheetScrollGestureBehavior,
+					sheetSnapBehavior,
+					snapPoints,
+					transitionSpec,
+				},
 				isFirstKey,
 			}),
-		[isFirstKey, options],
+		[
+			isFirstKey,
+			gestureDirection,
+			gestureEnabled,
+			gestureReleaseVelocityScale,
+			gestureSensitivity,
+			gestureSnapLocked,
+			gestureSnapVelocityImpact,
+			gestureTracking,
+			gestureVelocityImpact,
+			sheetScrollGestureBehavior,
+			sheetSnapBehavior,
+			snapPoints,
+			transitionSpec,
+		],
 	);
 }

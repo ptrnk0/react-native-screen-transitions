@@ -6,13 +6,13 @@ import { OrchestratorProvider } from "../../providers/screen/orchestrator";
 import { useBlankStackStore } from "../../providers/stack/blank-stack.provider";
 import { ScreenContainer } from "./container";
 
-const SceneMotion = ({
+const SceneMotion = memo(function SceneMotion({
 	children,
 	lifecycle: Lifecycle,
 }: {
 	children: ReactNode;
 	lifecycle: ComponentType;
-}) => {
+}) {
 	const { requestDismiss } = useNavigationHelpers();
 	return (
 		<MotionProvider onDismissRequest={requestDismiss}>
@@ -24,7 +24,7 @@ const SceneMotion = ({
 			<Lifecycle />
 		</MotionProvider>
 	);
-};
+});
 
 export const Screen = memo(function Screen({
 	routeKey,

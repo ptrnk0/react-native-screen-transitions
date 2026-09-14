@@ -30,6 +30,8 @@ export const useMaybeBlockVisibility = ({
 	const { height } = useWindowDimensions();
 	const {
 		animationProgress,
+		entering,
+		closing,
 		pendingLifecycleStartBlockCount,
 		pendingLifecycleRequestKind,
 	} = motion;
@@ -47,7 +49,7 @@ export const useMaybeBlockVisibility = ({
 				pendingLifecycleStartBlockCount: pendingLifecycleStartBlockCount.get(),
 				pendingLifecycleRequestKind: pendingLifecycleRequestKind.get(),
 				animationProgress: animationProgress.get(),
-				entering: motion.entering.get(),
+				entering: entering.get(),
 			});
 		},
 		(gate) => {
@@ -70,8 +72,8 @@ export const useMaybeBlockVisibility = ({
 			!localVisibilityBlocked.get() &&
 			(ancestorIsScreenReady?.get() ?? true) &&
 			resolveScreenReady({
-				opening: isPendingOpen || !!motion.entering.get(),
-				closing: motion.closing.get(),
+				opening: isPendingOpen || !!entering.get(),
+				closing: closing.get(),
 				pendingLifecycleStartBlockCount: pendingLifecycleStartBlockCount.get(),
 				animationProgress: animationProgress.get(),
 			})
@@ -84,7 +86,7 @@ export const useMaybeBlockVisibility = ({
 		// Hide the outgoing screen after its visual close while React removes its
 		// host asynchronously.
 		const shouldHideClosedScreen = hasCloseTransitionFinished({
-			closing: motion.closing.get(),
+			closing: closing.get(),
 			animationProgress: animationProgress.get(),
 		});
 		// Only the first unready ancestor applies the offset, including after close.

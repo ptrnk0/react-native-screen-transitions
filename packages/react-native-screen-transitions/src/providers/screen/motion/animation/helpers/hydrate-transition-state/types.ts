@@ -6,7 +6,11 @@ import type {
 import type { ScrollMetadataState } from "../../../../../../types/gesture.types";
 import type { Layout } from "../../../../../../types/screen.types";
 import type { BaseStackRoute } from "../../../../../../types/stack.types";
-import type { MotionGestureValues, MotionValues } from "../../../types";
+import type {
+	MotionAnimationValues,
+	MotionGestureValues,
+	MotionValues,
+} from "../../../types";
 
 export type MotionAnimationState = MotionValues & {
 	route: BaseStackRoute;
@@ -21,11 +25,25 @@ export type MotionAnimationState = MotionValues & {
 };
 
 // Each interpolator reader owns its mutable output and option overrides.
-export type BuiltState = Omit<
+export type BuiltState = Pick<
 	MotionAnimationState,
-	keyof MotionGestureValues
+	| keyof MotionAnimationValues
+	| "route"
+	| "meta"
+	| "options"
+	| "targetProgress"
+	| "resolvedAutoSnapPoint"
+	| "measuredContentLayout"
+	| "scrollMetadata"
+	| "hasAutoSnapPoint"
+	| "sortedNumericSnapPoints"
 > & {
-	gesture: MotionGestureValues;
+	gesture: Omit<MotionGestureValues, "internal"> & {
+		internal: Pick<
+			MotionGestureValues["internal"],
+			"progressDeltaX" | "progressDeltaY" | "snapshot"
+		>;
+	};
 	optionsSlot: ScreenTransitionOptions;
 	contentLayoutSlot: Layout;
 	unwrapped: ScreenTransitionState;

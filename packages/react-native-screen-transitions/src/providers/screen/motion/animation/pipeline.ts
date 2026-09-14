@@ -11,9 +11,53 @@ export function useMotionAnimationPipeline(
 ): MotionAnimationState {
 	const descriptor = useBuilderStore((store) => store.descriptors.current);
 	const route = descriptor.route;
+	const { meta, snapPoints } = descriptor.options;
 	const key = route.key;
-	const meta = descriptor.options.meta;
-	const snapPoints = descriptor.options.snapPoints;
+
+	const {
+		gestureEnabled,
+		gestureTracking,
+		gestureDirection,
+		gestureSensitivity,
+		gestureVelocityImpact,
+		gestureSnapVelocityImpact,
+		gestureReleaseVelocityScale,
+		gestureSnapLocked,
+		sheetSnapBehavior,
+		sheetScrollGestureBehavior,
+		backdropBehavior,
+	} = descriptor.options;
+
+	const transitionOptions = useMemo(
+		() =>
+			buildScreenTransitionOptions({
+				gestureEnabled,
+				gestureTracking,
+				gestureDirection,
+				gestureSensitivity,
+				gestureVelocityImpact,
+				gestureSnapVelocityImpact,
+				gestureReleaseVelocityScale,
+				gestureSnapLocked,
+				sheetSnapBehavior,
+				sheetScrollGestureBehavior,
+				backdropBehavior,
+			}),
+		[
+			gestureEnabled,
+			gestureTracking,
+			gestureDirection,
+			gestureSensitivity,
+			gestureVelocityImpact,
+			gestureSnapVelocityImpact,
+			gestureReleaseVelocityScale,
+			gestureSnapLocked,
+			sheetSnapBehavior,
+			sheetScrollGestureBehavior,
+			backdropBehavior,
+		],
+	);
+
 	return useMemo(() => {
 		const plainRoute = toPlainRoute(route);
 		const plainMeta = meta
@@ -23,8 +67,6 @@ export function useMotionAnimationPipeline(
 		const sortedNumericSnapPoints = (snapPoints ?? [])
 			.filter((p): p is number => typeof p === "number")
 			.sort((a, b) => a - b);
-
-		const transitionOptions = buildScreenTransitionOptions(descriptor.options);
 
 		return {
 			...values,
@@ -36,5 +78,5 @@ export function useMotionAnimationPipeline(
 			meta: plainMeta,
 			options: transitionOptions,
 		};
-	}, [key, meta, route, snapPoints, descriptor.options, values]);
+	}, [key, meta, route, snapPoints, transitionOptions, values]);
 }
