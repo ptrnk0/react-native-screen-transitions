@@ -66,7 +66,7 @@ function VideoCard({ example, onPress }: VideoCardProps) {
 					pointerEvents="none"
 					style={StyleSheet.absoluteFill}
 					contentFit="contain"
-					surfaceType="surfaceView"
+					surfaceType="textureView"
 				/>
 			</Transition.Boundary.Target>
 		</Transition.Boundary>

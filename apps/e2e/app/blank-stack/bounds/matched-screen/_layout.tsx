@@ -64,7 +64,8 @@ const navigationZoomInterpolator: ScreenTransitionConfig["screenStyleInterpolato
 export default function MatchedScreenLayout() {
 	return (
 		<BlankStack>
-			<BlankStack.Screen name="index" />
+			{/* The original payload must stay mounted and live across stacked receivers. */}
+			<BlankStack.Screen name="index" options={{ inactiveBehavior: "keep" }} />
 			<BlankStack.Screen
 				name="player"
 				options={{

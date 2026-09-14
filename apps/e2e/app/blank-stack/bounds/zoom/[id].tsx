@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import type { ComponentType } from "react";
 import type {
+	FlatListProps,
 	ListRenderItemInfo,
 	NativeScrollEvent,
 	NativeSyntheticEvent,
@@ -12,7 +14,6 @@ import {
 	useWindowDimensions,
 	View,
 } from "react-native";
-import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Transition from "react-native-screen-transitions";
 import { useTheme } from "@/theme";
@@ -23,6 +24,9 @@ import {
 } from "./constants";
 
 const COLOR_SWATCH_RADIUS = 28;
+const ZoomFlatList = Transition.FlatList as ComponentType<
+	FlatListProps<BoundsSyncZoomItem>
+>;
 
 const COLOR_PROPERTIES = [
 	{ label: "Hex", key: "hex" },
@@ -273,7 +277,7 @@ export default function NavigationZoomGroupTransitionsDetail() {
 
 	return (
 		<View style={styles.root}>
-			<Animated.FlatList
+			<ZoomFlatList
 				data={BOUNDS_SYNC_ZOOM_ITEMS}
 				renderItem={renderItem}
 				keyExtractor={keyExtractor}
@@ -281,7 +285,6 @@ export default function NavigationZoomGroupTransitionsDetail() {
 				initialScrollIndex={initialIndex}
 				horizontal
 				pagingEnabled
-				// scrollEnabled={false}
 				showsHorizontalScrollIndicator={false}
 				onMomentumScrollEnd={handleMomentumScrollEnd}
 				windowSize={1}

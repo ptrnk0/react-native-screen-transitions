@@ -1,4 +1,5 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { StackActions } from "@react-navigation/native";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Transition from "react-native-screen-transitions";
@@ -10,7 +11,6 @@ import {
 } from "@/components/bounds-stacking/constants";
 import { StackingCardContent } from "@/components/bounds-stacking/stacking-card-content";
 import { ScreenHeader } from "@/components/screen-header";
-import { buildStackPath } from "@/components/stack-examples/stack-routing";
 import { useTheme } from "@/theme";
 
 export default function StackingBoundsIndex() {
@@ -19,15 +19,16 @@ export default function StackingBoundsIndex() {
 	}>();
 	const depth = parseStackDepth(depthParam);
 	const theme = useTheme();
+	const navigation = useNavigation();
 
 	const pushDetail = (id: StackingBoundaryId) => {
-		router.push({
-			pathname: buildStackPath("bounds/stacking/[id]"),
-			params: {
+		navigation.dispatch((state) => ({
+			...StackActions.push("[id]", {
 				depth: String(depth + 1),
 				id,
-			},
-		} as never);
+			}),
+			target: state.key,
+		}));
 	};
 
 	return (
