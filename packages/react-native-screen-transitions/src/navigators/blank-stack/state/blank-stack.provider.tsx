@@ -31,52 +31,55 @@ const {
 } = createProvider("BlankStack")<
 	InternalBlankStackProviderProps,
 	BlankStackStoreValue
->(({ state: stackState, children, ...props }) => {
-	const { state, handleCloseRoute, handleOpenRoute, requestDismiss } =
-		useBlankStackState({
-			...props,
-			state: stackState,
-		});
+>(
+	({ state: stackState, children, ...props }) => {
+		const { state, handleCloseRoute, handleOpenRoute, requestDismiss } =
+			useBlankStackState({
+				...props,
+				state: stackState,
+			});
 
-	const navigatorKey = stackState.key;
-	const focusedIndex = resolvePresentedIndex(
-		state.routes,
-		state.focusedRouteKey,
-		state.closingRouteKeys,
-	);
+		const navigatorKey = stackState.key;
+		const focusedIndex = resolvePresentedIndex(
+			state.routes,
+			state.focusedRouteKey,
+			state.closingRouteKeys,
+		);
 
-	const scenesByKey = useMemo(
-		() => createScenesByKey(state.scenes),
-		[state.scenes],
-	);
+		const scenesByKey = useMemo(
+			() => createScenesByKey(state.scenes),
+			[state.scenes],
+		);
 
-	const paintDriverRouteKeyByRouteKey = useMemo(() => {
-		const paintDrivers = new Map<string, string>();
+		const paintDriverRouteKeyByRouteKey = useMemo(() => {
+			const paintDrivers = new Map<string, string>();
 
-		for (let index = 0; index + 2 < state.routeKeys.length; index++) {
-			paintDrivers.set(state.routeKeys[index], state.routeKeys[index + 2]);
-		}
+			for (let index = 0; index + 2 < state.routeKeys.length; index++) {
+				paintDrivers.set(state.routeKeys[index], state.routeKeys[index + 2]);
+			}
 
-		return paintDrivers;
-	}, [state.routeKeys]);
+			return paintDrivers;
+		}, [state.routeKeys]);
 
-	return {
-		value: {
-			navigatorKey,
-			routeKeys: state.routeKeys,
-			routes: state.routes,
-			scenes: state.scenes,
-			scenesByKey,
-			paintDriverRouteKeyByRouteKey,
-			focusedIndex,
-			requestDismiss,
-			shouldShowFloatOverlay: state.shouldShowFloatOverlay,
-			handleCloseRoute,
-			handleOpenRoute,
-		},
-		children,
-	};
-});
+		return {
+			value: {
+				navigatorKey,
+				routeKeys: state.routeKeys,
+				routes: state.routes,
+				scenes: state.scenes,
+				scenesByKey,
+				paintDriverRouteKeyByRouteKey,
+				focusedIndex,
+				requestDismiss,
+				shouldShowFloatOverlay: state.shouldShowFloatOverlay,
+				handleCloseRoute,
+				handleOpenRoute,
+			},
+			children,
+		};
+	},
+	{ getRouteActivity: (store, key) => store.scenesByKey[key]?.activity },
+);
 
 export type { BlankStackProviderProps, BlankStackStoreValue };
 export {

@@ -20,7 +20,9 @@
  * Providers created with `global: true` return a `key` from their factory.
  * Both generated store hooks accept that key to subscribe to the original
  * provider store from outside its React context. Arrays of keys return ordered
- * snapshots (null for unmounted keys) and apply the selector to each store.
+ * snapshots (null for unavailable keys) and apply the selector to each store.
+ * Route-owned registrations survive Activity cleanup until their route closes
+ * or disappears; providers outside a route lifetime unregister on cleanup.
  */
 import {
 	createContext,
@@ -28,6 +30,7 @@ import {
 	useCallback,
 	useContext,
 	useLayoutEffect,
+	useMemo,
 	useRef,
 	useSyncExternalStore,
 } from "react";
@@ -100,7 +103,11 @@ interface MutableProviderStoreApi<ContextValue>
 
 interface ProviderStoreRegistry<ContextValue> {
 	getStore: (key: string) => ProviderStoreApi<ContextValue> | null;
-	register: (key: string, store: ProviderStoreApi<ContextValue>) => () => void;
+	register: (
+		key: string,
+		store: ProviderStoreApi<ContextValue>,
+		onReplace: () => void,
+	) => () => void;
 	subscribe: (key: string, listener: () => void) => () => void;
 }
 
@@ -179,7 +186,10 @@ const createProviderStoreRegistry = <
 	ContextValue,
 >(): ProviderStoreRegistry<ContextValue> => {
 	const listenersByKey = new Map<string, Set<() => void>>();
-	const storesByKey = new Map<string, ProviderStoreApi<ContextValue>>();
+	const storesByKey = new Map<
+		string,
+		{ store: ProviderStoreApi<ContextValue>; onReplace: () => void }
+	>();
 
 	const notify = (key: string) => {
 		for (const listener of listenersByKey.get(key) ?? []) {
@@ -188,12 +198,16 @@ const createProviderStoreRegistry = <
 	};
 
 	return {
-		getStore: (key) => storesByKey.get(key) ?? null,
-		register: (key, store) => {
-			storesByKey.set(key, store);
+		getStore: (key) => storesByKey.get(key)?.store ?? null,
+		register: (key, store, onReplace) => {
+			const previous = storesByKey.get(key);
+			const registration = { store, onReplace };
+			storesByKey.set(key, registration);
+			previous?.onReplace();
 			notify(key);
 
 			return () => {
+				if (storesByKey.get(key) !== registration) return;
 				storesByKey.delete(key);
 				notify(key);
 			};
@@ -213,6 +227,64 @@ const createProviderStoreRegistry = <
 	};
 };
 
+interface RouteLifetime {
+	/** Retain until route removal/close; the returned function cancels retention. */
+	retain: (key: string, dispose: () => void) => () => void;
+	activate: () => void;
+	dispose: () => void;
+}
+
+const ProviderRouteLifetimeContext = createContext<{
+	lifetime: RouteLifetime;
+	routeKey?: string;
+} | null>(null);
+
+function createRouteLifetime<Value>(
+	store: {
+		getSnapshot: () => Value | null;
+		subscribe: (listener: () => void) => () => void;
+	},
+	getRouteActivity: (value: Value, key: string) => string | undefined,
+): RouteLifetime {
+	let disposed = false;
+	const retained = new Set<() => void>();
+	const isRetained = (key: string) => {
+		const snapshot = store.getSnapshot();
+		const activity = snapshot && getRouteActivity(snapshot, key);
+		return !disposed && !!activity && activity !== "closing";
+	};
+	return {
+		activate: () => {
+			disposed = false;
+		},
+		retain: (key, dispose) => {
+			let released = false;
+			let unsubscribe = () => {};
+			const cancel = () => {
+				if (released) return;
+				released = true;
+				unsubscribe();
+				retained.delete(release);
+			};
+			const release = () => {
+				if (released) return;
+				cancel();
+				dispose();
+			};
+			retained.add(release);
+			unsubscribe = store.subscribe(() => {
+				if (!isRetained(key)) release();
+			});
+			if (!isRetained(key)) release();
+			return cancel;
+		},
+		dispose: () => {
+			disposed = true;
+			for (const release of retained) release();
+		},
+	};
+}
+
 export default function createProvider<
 	ProviderName extends string,
 	Global extends boolean = false,
@@ -221,6 +293,12 @@ export default function createProvider<
 		factory: (
 			props: ProviderProps,
 		) => ProviderFactoryResult<ContextValue, Global>,
+		lifecycle?: {
+			getRouteActivity: (
+				value: ContextValue,
+				key: string,
+			) => string | undefined;
+		},
 	) => {
 		const { global = false } = options ?? {};
 		const providerDisplayName = `${name}Provider`;
@@ -397,8 +475,36 @@ export default function createProvider<
 			}
 			const store = storeRef.current;
 
+			const parentRoute = useContext(ProviderRouteLifetimeContext);
+			const routeLifetime = useMemo(
+				() =>
+					lifecycle
+						? createRouteLifetime(store, lifecycle.getRouteActivity)
+						: null,
+				[store],
+			);
+			const retainedRegistration = useRef<(() => void) | undefined>(undefined);
+			const retainedLifetime = useRef<(() => void) | undefined>(undefined);
+			useLayoutEffect(() => {
+				if (!routeLifetime) return;
+				retainedLifetime.current?.();
+				routeLifetime.activate();
+				return () => {
+					if (parentRoute?.routeKey) {
+						retainedLifetime.current = parentRoute.lifetime.retain(
+							parentRoute.routeKey,
+							routeLifetime.dispose,
+						);
+					} else {
+						routeLifetime.dispose();
+					}
+				};
+			}, [routeLifetime, parentRoute]);
+
 			useLayoutEffect(() => {
 				if (!globalRegistry || !registerGlobally) {
+					retainedRegistration.current?.();
+					retainedRegistration.current = undefined;
 					return;
 				}
 
@@ -408,8 +514,26 @@ export default function createProvider<
 					);
 				}
 
-				return globalRegistry.register(storeKey, store);
-			}, [registerGlobally, storeKey, store]);
+				const unregister = globalRegistry.register(storeKey, store, () => {
+					retainedRegistration.current?.();
+					retainedRegistration.current = undefined;
+				});
+				// Register first: a resumed/replacement provider must survive an old
+				// registration's delayed disposal for the same route key.
+				retainedRegistration.current?.();
+				retainedRegistration.current = undefined;
+				return () => {
+					if (parentRoute) {
+						const cancel = parentRoute.lifetime.retain(storeKey, unregister);
+						retainedRegistration.current = () => {
+							cancel();
+							unregister();
+						};
+					} else {
+						unregister();
+					}
+				};
+			}, [registerGlobally, storeKey, store, parentRoute]);
 
 			pendingNotifyRef.current =
 				store.setSnapshot(value) || pendingNotifyRef.current;
@@ -423,8 +547,21 @@ export default function createProvider<
 				store.notify();
 			});
 
+			const routeContext = useMemo(
+				() =>
+					routeLifetime
+						? { lifetime: routeLifetime }
+						: parentRoute && storeKey
+							? { lifetime: parentRoute.lifetime, routeKey: storeKey }
+							: parentRoute,
+				[routeLifetime, parentRoute, storeKey],
+			);
 			return (
-				<StoreContext.Provider value={store}>{children}</StoreContext.Provider>
+				<ProviderRouteLifetimeContext.Provider value={routeContext}>
+					<StoreContext.Provider value={store}>
+						{children}
+					</StoreContext.Provider>
+				</ProviderRouteLifetimeContext.Provider>
 			);
 		};
 		StoreProvider.displayName = `${name}StoreProvider`;

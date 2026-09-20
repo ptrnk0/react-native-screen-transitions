@@ -1,5 +1,5 @@
 import type * as React from "react";
-import { memo, useState } from "react";
+import { memo } from "react";
 import { StyleSheet, View, type ViewProps } from "react-native";
 import { useDerivedValue } from "react-native-reanimated";
 import {
@@ -43,32 +43,10 @@ export const ActivityScreen = memo(function ActivityScreen({
 
 	const hasNestedState = "state" in scene.route;
 
-	const registeredPaintDriverProgress = useOptionalMotionStore(
+	const paintDriverProgress = useOptionalMotionStore(
 		paintDriverRouteKey ?? null,
 		(store) => store.state.transitionProgress,
 	);
-
-	const [paintDriver, setPaintDriver] = useState({
-		key: paintDriverRouteKey,
-		progress: registeredPaintDriverProgress,
-	});
-
-	// Activity disconnects the driver's provider when it pauses. Keep observing
-	// the same progress value so that pausing it doesn't wake older screens.
-	if (
-		paintDriver.key !== paintDriverRouteKey ||
-		(registeredPaintDriverProgress !== null &&
-			paintDriver.progress !== registeredPaintDriverProgress)
-	) {
-		setPaintDriver({
-			key: paintDriverRouteKey,
-			progress: registeredPaintDriverProgress,
-		});
-	}
-
-	const paintDriverProgress =
-		registeredPaintDriverProgress ??
-		(paintDriver.key === paintDriverRouteKey ? paintDriver.progress : null);
 
 	/**
 	 * Avoid hiding inactive content until the screen that exposes it has settled.
