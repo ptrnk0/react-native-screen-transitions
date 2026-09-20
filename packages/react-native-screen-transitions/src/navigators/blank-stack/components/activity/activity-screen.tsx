@@ -6,11 +6,14 @@ import {
 	ActivityView,
 	type ActivityViewMode,
 } from "../../../../components/activity/activity-view";
+import { IS_WEB } from "../../../../constants";
 import { useSharedValueState } from "../../../../hooks/reanimated/use-shared-value-state";
 import { useOptionalMotionStore } from "../../../../providers/motion";
+import type { InactiveBehavior } from "../../../../types/screen.types";
 import type { StackSceneActivity } from "../../../../types/stack.types";
 import { useBlankStackStore } from "../../state/blank-stack.provider";
-import { DEFAULT_INACTIVE_BEHAVIOR, type InactiveBehavior } from "./helpers";
+
+const DEFAULT_INACTIVE_BEHAVIOR: InactiveBehavior = IS_WEB ? "unmount" : "hide";
 
 // Let the content and backdrop layers decide whether to capture touches.
 const PointerEventsByActivity = {
@@ -33,18 +36,23 @@ export const ActivityScreen = memo(function ActivityScreen({
 	const paintDriverRouteKey = useBlankStackStore((store) =>
 		store.paintDriverRouteKeyByRouteKey.get(routeKey),
 	);
+
 	const inactiveBehavior =
 		(scene.descriptor.options as { inactiveBehavior?: InactiveBehavior })
 			.inactiveBehavior ?? DEFAULT_INACTIVE_BEHAVIOR;
+
 	const hasNestedState = "state" in scene.route;
+
 	const registeredPaintDriverProgress = useOptionalMotionStore(
 		paintDriverRouteKey ?? null,
 		(store) => store.state.transitionProgress,
 	);
+
 	const [paintDriver, setPaintDriver] = useState({
 		key: paintDriverRouteKey,
 		progress: registeredPaintDriverProgress,
 	});
+
 	// Activity disconnects the driver's provider when it pauses. Keep observing
 	// the same progress value so that pausing it doesn't wake older screens.
 	if (
@@ -57,6 +65,7 @@ export const ActivityScreen = memo(function ActivityScreen({
 			progress: registeredPaintDriverProgress,
 		});
 	}
+
 	const paintDriverProgress =
 		registeredPaintDriverProgress ??
 		(paintDriver.key === paintDriverRouteKey ? paintDriver.progress : null);

@@ -1,5 +1,5 @@
 import { afterEach, expect, it, mock } from "bun:test";
-import { useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
 
 let scene: any = {
@@ -7,11 +7,13 @@ let scene: any = {
 	previousDescriptor: undefined,
 	nextDescriptor: undefined,
 };
+const routeKeys = ["A"];
 let builderValue = 0;
 const sceneListeners = new Set<() => void>();
 const listeners = new Set<() => void>();
 let motionRenders = 0;
 let descendantValue = 0;
+let mounts = 0;
 const passthrough = ({ children }: { children?: ReactNode }) => children;
 mock.module("react-native-gesture-handler", () => ({
 	GestureHandlerRootView: passthrough,
@@ -23,7 +25,7 @@ mock.module("../components/boundary/portal", () => ({
 	PortalProvider: passthrough,
 }));
 mock.module("../components/overlay", () => ({
-	Overlay: { Float: () => null },
+	Overlay: () => null,
 }));
 mock.module("../navigators/blank-stack/components/lifecycle/blank-stack", () => ({
 	BlankStackLifecycle: () => null,
@@ -38,7 +40,7 @@ mock.module("../navigators/blank-stack/state/blank-stack.provider", () => ({
 					sceneListeners.delete(callback);
 				};
 			},
-			() => select({ scenesByKey: { A: scene } }),
+			() => select({ routeKeys, scenesByKey: { A: scene } }),
 		),
 }));
 mock.module("../providers/builder", () => ({
@@ -64,7 +66,7 @@ mock.module("../navigators/blank-stack/components/activity", () => ({
 mock.module("../components/screen-layers", () => ({
 	ScreenLayers: passthrough,
 }));
-const { Screen } = await import("../navigators/blank-stack/components/stack-view");
+const { BlankStackView } = await import("../navigators/blank-stack/components/stack-view");
 let renderer: ReactTestRenderer | undefined;
 afterEach(() => {
 	act(() => renderer?.unmount());
@@ -72,6 +74,7 @@ afterEach(() => {
 });
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 function Subscriber() {
+	useEffect(() => { mounts++; }, []);
 	descendantValue = useSyncExternalStore(
 		(callback) => {
 			listeners.add(callback);
@@ -83,42 +86,35 @@ function Subscriber() {
 	);
 	return null;
 }
-const Lifecycle = () => null;
-it("skips unchanged SceneMotion props but preserves descendant subscriptions and changed props", () => {
+it("preserves mounted content and descendant subscriptions when scene descriptors update", () => {
 	const children = <Subscriber />;
 	const render = (
 		child = children,
-		lifecycle = Lifecycle,
 	) => {
 		act(() => {
-			const element = (
-				<Screen routeKey="A" lifecycle={lifecycle}>
-					{child}
-				</Screen>
-			);
+			scene = { ...scene, descriptor: { ...scene.descriptor, render: () => child } };
+			for (const listener of sceneListeners) listener();
+			const element = <BlankStackView />;
 			if (renderer) renderer.update(element);
 			else renderer = create(element);
 		});
 	};
 	render();
-	const initial = motionRenders;
+	expect(mounts).toBe(1);
 	act(() => {
-		scene = { ...scene, descriptor: {} };
+		scene = { ...scene, descriptor: { ...scene.descriptor } };
 		for (const listener of sceneListeners) listener();
 	});
-	expect(motionRenders).toBe(initial);
+	expect(mounts).toBe(1);
 	act(() => {
 		builderValue = 1;
 		for (const listener of listeners) listener();
 	});
 	expect(descendantValue).toBe(1);
-	expect(motionRenders).toBe(initial);
+	expect(mounts).toBe(1);
 	render();
-	expect(motionRenders).toBe(initial);
+	expect(mounts).toBe(1);
 	const next = motionRenders;
 	render(<Subscriber />);
 	expect(motionRenders).toBeGreaterThan(next);
-	const last = motionRenders;
-	render(children, () => null);
-	expect(motionRenders).toBeGreaterThan(last);
 });

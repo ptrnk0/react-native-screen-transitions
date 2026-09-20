@@ -1,4 +1,4 @@
-import { type ComponentType, memo, type ReactNode, useMemo } from "react";
+import { memo, type ReactNode, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -19,10 +19,8 @@ import { BlankStackLifecycle } from "./lifecycle/blank-stack";
 
 const SceneMotion = memo(function SceneMotion({
 	children,
-	lifecycle: Lifecycle,
 }: {
 	children: ReactNode;
-	lifecycle: ComponentType;
 }) {
 	const { requestDismiss } = useNavigationHelpers();
 	return (
@@ -32,20 +30,16 @@ const SceneMotion = memo(function SceneMotion({
 					{children}
 				</ScreenLayers>
 			</OrchestratorProvider>
-			<Lifecycle />
+			<BlankStackLifecycle />
 		</MotionProvider>
 	);
 });
 
-export const Screen = memo(function Screen({
-	routeKey,
-	children,
-	lifecycle,
-}: {
+interface RouteKeyProps {
 	routeKey: string;
-	children: ReactNode;
-	lifecycle: ComponentType;
-}) {
+}
+
+const BlankSceneRow = memo(function BlankSceneRow({ routeKey }: RouteKeyProps) {
 	const scene = useBlankStackStore((store) => store.scenesByKey[routeKey]);
 	const descriptors = useMemo(
 		() => ({
@@ -55,33 +49,12 @@ export const Screen = memo(function Screen({
 		}),
 		[scene.descriptor, scene.previousDescriptor, scene.nextDescriptor],
 	);
-	return (
-		<BuilderProvider routeKey={routeKey} descriptors={descriptors}>
-			<SceneMotion lifecycle={lifecycle}>{children}</SceneMotion>
-		</BuilderProvider>
-	);
-});
 
-interface RouteKeyProps {
-	routeKey: string;
-}
-
-// Keep the render subscription inside the activity boundary so it can be paused.
-const BlankSceneContent = memo(function BlankSceneContent({
-	routeKey,
-}: RouteKeyProps) {
-	const render = useBlankStackStore(
-		(store) => store?.scenesByKey[routeKey]?.descriptor.render,
-	);
-	return render?.();
-});
-
-const BlankSceneRow = memo(function BlankSceneRow({ routeKey }: RouteKeyProps) {
 	return (
 		<ActivityScreen routeKey={routeKey}>
-			<Screen routeKey={routeKey} lifecycle={BlankStackLifecycle}>
-				<BlankSceneContent routeKey={routeKey} />
-			</Screen>
+			<BuilderProvider routeKey={routeKey} descriptors={descriptors}>
+				<SceneMotion>{scene.descriptor.render?.()}</SceneMotion>
+			</BuilderProvider>
 		</ActivityScreen>
 	);
 });
@@ -90,7 +63,7 @@ export const BlankStackView = memo(function BlankStackView() {
 	const routeKeys = useBlankStackStore((store) => store?.routeKeys);
 	return (
 		<PortalProvider>
-			<Overlay.Float />
+			<Overlay />
 			<ActivityContainer>
 				{routeKeys.map((routeKey) => (
 					<BlankSceneRow key={routeKey} routeKey={routeKey} />

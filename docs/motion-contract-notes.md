@@ -111,7 +111,7 @@ Builder now receives `descriptors`, optional `navigatorKey`, and optional `isAct
 
 Motion accepts `onDismissRequest`, passed to the existing pan and pinch release handlers. ScreenLayers accepts the same callback for backdrop dismissal. These callbacks run on the React thread, with gesture release calculations and animation execution unchanged. They report a dismissal request; their return value does not change the gesture release calculation.
 
-The `Screen` component in `navigators/blank-stack/components/stack-view.tsx` composes Builder → Motion → Orchestrator → ScreenLayers. It reads Blank Stack scene descriptors and wires navigation dismissal. Blank Stack and the native-stack adapter both consume this component, supplying their respective lifecycle components.
+Blank Stack’s scene row and the native-stack adapter’s screen layout each compose Builder → Motion → Orchestrator → ScreenLayers directly. Each integration wires navigation dismissal and its own lifecycle component beneath the providers.
 
 Orchestrator uses optional Blank Stack and Stack Core reads. Without them, stack progress falls back to the local interpolation frame, closing-route gesture shadowing is inactive, and configured transitions are enabled by default. Normal React Native gesture, Reanimated, and safe-area setup is still provided by the host. Descriptor redesign and final public exports remain separate work.
 

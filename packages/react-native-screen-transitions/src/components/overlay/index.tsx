@@ -1,16 +1,16 @@
-import { useBlankStackStore } from "../../../navigators/blank-stack/state/blank-stack.provider";
+import { useBlankStackStore } from "../../navigators/blank-stack/state/blank-stack.provider";
 
 import {
 	getFloatOverlayStack,
 	getFloatOverlayTransitions,
-} from "../helpers/get-active-overlay";
-import { OverlayHost } from "./overlay-host";
+} from "./helpers/get-active-overlay";
+import { OverlayHost } from "./variations/overlay-host";
 
 /**
- * Float overlay component that renders above all screens.
+ * Overlay component that renders above all screens.
  * Gets routes and descriptors from stack context.
  */
-export function FloatOverlay() {
+export function Overlay() {
 	const scenes = useBlankStackStore((store) => store.scenes);
 
 	const overlayStack = getFloatOverlayStack(scenes);

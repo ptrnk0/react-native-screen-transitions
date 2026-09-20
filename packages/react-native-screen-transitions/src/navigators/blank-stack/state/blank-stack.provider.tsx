@@ -37,16 +37,19 @@ const {
 			...props,
 			state: stackState,
 		});
+
 	const navigatorKey = stackState.key;
 	const focusedIndex = resolvePresentedIndex(
 		state.routes,
 		state.focusedRouteKey,
 		state.closingRouteKeys,
 	);
+
 	const scenesByKey = useMemo(
 		() => createScenesByKey(state.scenes),
 		[state.scenes],
 	);
+
 	const paintDriverRouteKeyByRouteKey = useMemo(() => {
 		const paintDrivers = new Map<string, string>();
 
