@@ -1,11 +1,11 @@
 import { afterEach, expect, it } from "bun:test";
 import { memo, type ReactNode } from "react";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
-import { createStackProgressRouteSelector } from "../providers/screen/orchestrator/helpers/use-stack-progress-inputs";
+import { createStackProgressRouteSelector } from "../providers/orchestrator/helpers/use-stack-progress-inputs";
 import {
 	readStackProgress,
 	type StackProgressEntry,
-} from "../providers/screen/orchestrator/helpers/stack-progress";
+} from "../providers/orchestrator/helpers/stack-progress";
 import createProvider from "../utils/create-provider";
 import type { SharedValue } from "react-native-reanimated";
 

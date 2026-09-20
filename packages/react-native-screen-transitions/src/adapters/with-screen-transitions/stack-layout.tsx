@@ -3,8 +3,8 @@ import { useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Overlay } from "../../components/overlay";
-import { Screen } from "../../components/screen/screen";
-import { BlankStackStoreProvider } from "../../providers/stack/blank-stack.provider";
+import { Screen } from "../../navigators/blank-stack/components/stack-view";
+import { BlankStackStoreProvider } from "../../navigators/blank-stack/state/blank-stack.provider";
 import type { BaseStackDescriptor, BaseStackRoute } from "../../types";
 import {
 	ScreenTransitionsAdapterProvider,

@@ -1,18 +1,18 @@
 import { useMemo } from "react";
 import { useDerivedValue, useSharedValue } from "react-native-reanimated";
 import { NO_PROPS, NO_STYLES } from "../../../constants";
-import { useBuilderStore } from "../../../providers/screen/builder";
-import { useScreenRelationships } from "../../../providers/screen/builder/topology";
+import { useOptionalBlankStackStore } from "../../../navigators/blank-stack/state/blank-stack.provider";
+import { useBuilderStore } from "../../../providers/builder";
+import { useScreenRelationships } from "../../../providers/builder/topology";
 import {
 	useOptionalOrchestratorStore,
 	useOrchestratorStore,
-} from "../../../providers/screen/orchestrator";
+} from "../../../providers/orchestrator";
 import {
 	areResettableStatesBySlotEqual,
 	type ResettableStyleStatesBySlot,
 	resolveSlotStyles,
-} from "../../../providers/screen/orchestrator/styles/helpers/resolve-slot-styles";
-import { useOptionalBlankStackStore } from "../../../providers/stack/blank-stack.provider";
+} from "../../../providers/orchestrator/styles/helpers/resolve-slot-styles";
 import {
 	boundaryRegistry,
 	pairs,

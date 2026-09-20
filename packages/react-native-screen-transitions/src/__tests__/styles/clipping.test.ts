@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { normalizeSlots } from "../../providers/screen/orchestrator/styles/helpers/normalize-slots";
-import { resolveSlotStyles, reuseEqualResolvedSlots } from "../../providers/screen/orchestrator/styles/helpers/resolve-slot-styles";
+import { normalizeSlots } from "../../providers/orchestrator/styles/helpers/normalize-slots";
+import { resolveSlotStyles, reuseEqualResolvedSlots } from "../../providers/orchestrator/styles/helpers/resolve-slot-styles";
 
 const clip = { x: 80, y: 120, width: 140, height: 200, borderRadius: 24 };
 

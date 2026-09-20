@@ -17,14 +17,14 @@ const store = {
 	},
 };
 mock.module(
-	"../../providers/screen/orchestrator/orchestrator.provider",
+	"../../providers/orchestrator/orchestrator.provider",
 	() => ({
 		useOrchestratorStore: (select: (state: typeof store) => unknown) =>
 			select(store),
 	}),
 );
 const { Clip } = await import(
-	"../../components/screen/container/layers/clip"
+	"../../components/screen-layers/layers/clip"
 );
 (
 	globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }

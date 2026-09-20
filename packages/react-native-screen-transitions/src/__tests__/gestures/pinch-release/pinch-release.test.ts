@@ -2,11 +2,11 @@ import { describe, expect, it } from "bun:test";
 import {
 	resolvePinchRelease,
 	resolveSnapPinchRelease,
-} from "../../../providers/screen/motion/gestures/pinch/behavior/pinch-release";
+} from "../../../providers/motion/gestures/pinch/behavior/pinch-release";
 import type {
 	PinchGestureEvent,
 	PinchGestureRuntime,
-} from "../../../providers/screen/motion/gestures/types";
+} from "../../../providers/motion/gestures/types";
 
 const shared = <T>(initial: T) => {
 	let value = initial;

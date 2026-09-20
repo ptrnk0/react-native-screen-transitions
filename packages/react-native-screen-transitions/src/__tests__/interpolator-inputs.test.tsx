@@ -4,12 +4,12 @@ import {
 	createScreenTransitionState,
 	DEFAULT_SCREEN_TRANSITION_OPTIONS,
 } from "../constants";
-import { hydrateTransitionState } from "../providers/screen/motion/animation/helpers/hydrate-transition-state";
+import { hydrateTransitionState } from "../providers/motion/animation/helpers/hydrate-transition-state";
 import type {
 	BuiltState,
 	MotionAnimationState,
-} from "../providers/screen/motion/animation/helpers/hydrate-transition-state/types";
-import { useInterpolatorState } from "../providers/screen/orchestrator/helpers/use-interpolator-state";
+} from "../providers/motion/animation/helpers/hydrate-transition-state/types";
+import { useInterpolatorState } from "../providers/orchestrator/helpers/use-interpolator-state";
 import { mountMotionValues } from "./helpers/mount-motion-values";
 import type { SharedValue } from "react-native-reanimated";
 

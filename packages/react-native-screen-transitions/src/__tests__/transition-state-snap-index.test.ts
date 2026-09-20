@@ -4,9 +4,9 @@ import {
 	createScreenTransitionState,
 	DEFAULT_SCREEN_TRANSITION_OPTIONS,
 } from "../constants";
-import type { MotionGestureValues } from "../providers/screen/motion/types";
-import { buildScreenTransitionOptions } from "../providers/screen/motion/animation/helpers/build-screen-transition-options";
-import { hydrateTransitionState } from "../providers/screen/motion/animation/helpers/hydrate-transition-state";
+import type { MotionGestureValues } from "../providers/motion/types";
+import { buildScreenTransitionOptions } from "../providers/motion/animation/helpers/build-screen-transition-options";
+import { hydrateTransitionState } from "../providers/motion/animation/helpers/hydrate-transition-state";
 
 const shared = <T>(initial: T): SharedValue<T> => {
 	let value = initial;

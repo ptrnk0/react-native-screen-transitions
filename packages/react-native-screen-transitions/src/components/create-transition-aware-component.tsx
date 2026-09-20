@@ -7,13 +7,10 @@ import Animated, { useComposedEventHandler } from "react-native-reanimated";
 import {
 	ScrollMetadataOwnerProvider,
 	useScrollGestureCoordination,
-} from "../providers/screen/motion/gestures/scroll-coordination";
-import {
-	useSlotProps,
-	useSlotStyles,
-} from "../providers/screen/orchestrator/styles";
+} from "../providers/motion/gestures/scroll-coordination";
+import { useSlotProps, useSlotStyles } from "../providers/orchestrator/styles";
 import type { TransitionAwareProps } from "../types/screen.types";
-import { useContentLayout } from "./screen/container/hooks/use-content-layout";
+import { useContentLayout } from "./screen-layers/hooks/use-content-layout";
 
 interface CreateTransitionAwareComponentOptions {
 	isScrollable?: boolean;

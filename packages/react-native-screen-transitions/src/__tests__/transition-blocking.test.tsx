@@ -1,13 +1,13 @@
 import { mountMotionTransitionValues } from "./helpers/mount-transition-values";
 import { createElement } from "react";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
-import { BuilderProvider } from "../providers/screen/builder";
-import { MotionProvider, getMotionStore } from "../providers/screen/motion";
+import { BuilderProvider } from "../providers/builder";
+import { MotionProvider, getMotionStore } from "../providers/motion";
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import {
 	blockTransition,
 	unblockTransition,
-} from "../animation/transition-blocking";
+} from "../controls/transition-blocking";
 import { HistoryStore } from "../stores/history.store";
 import type { BaseStackDescriptor } from "../types/stack.types";
 

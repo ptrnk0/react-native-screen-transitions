@@ -1,11 +1,11 @@
 import {
 	BuilderProvider,
 	useBuilderStore,
-} from "../../../providers/screen/builder";
+} from "../../../providers/builder";
 import {
 	MotionProvider,
 	useMotionStore,
-} from "../../../providers/screen/motion";
+} from "../../../providers/motion";
 import { mountMotionValues } from "../../helpers/mount-motion-values";
 import { mountMotionTransitionValues } from "../../helpers/mount-transition-values";
 import { afterEach, describe, expect, it } from "bun:test";
@@ -16,28 +16,28 @@ import {
 	createScreenTransitionState,
 	DEFAULT_SCREEN_TRANSITION_OPTIONS,
 } from "../../../constants";
-import { hydrateTransitionState } from "../../../providers/screen/motion/animation/helpers/hydrate-transition-state";
-import type { BuiltState } from "../../../providers/screen/motion/animation/helpers/hydrate-transition-state/types";
+import { hydrateTransitionState } from "../../../providers/motion/animation/helpers/hydrate-transition-state";
+import type { BuiltState } from "../../../providers/motion/animation/helpers/hydrate-transition-state/types";
 import {
 	finalizePanRelease,
 	startPanBase,
 	trackPanGesture,
-} from "../../../providers/screen/motion/gestures/pan/behavior/pan-lifecycle";
-import type { GestureCompositionOwner } from "../../../providers/screen/motion/gestures/types";
+} from "../../../providers/motion/gestures/pan/behavior/pan-lifecycle";
+import type { GestureCompositionOwner } from "../../../providers/motion/gestures/types";
 import {
 	finalizePinchRelease,
 	startPinchBase,
-} from "../../../providers/screen/motion/gestures/pinch/behavior/pinch-lifecycle";
+} from "../../../providers/motion/gestures/pinch/behavior/pinch-lifecycle";
 import {
 	updateAbsolutePinchFocalPoint,
 	updatePinchRotation,
-} from "../../../providers/screen/motion/gestures/pinch/activation/use-pinch-activation";
-import { useTransitionStartController } from "../../../components/screen/lifecycle/hooks/use-transition-start-controller";
-import type { MotionAnimationValues } from "../../../providers/screen/motion/types";
-import type { MotionGestureValues } from "../../../providers/screen/motion/types";
-import { LifecycleTransitionRequestKind } from "../../../providers/screen/motion/hooks/use-transition-values";
+} from "../../../providers/motion/gestures/pinch/activation/use-pinch-activation";
+import { useTransitionStartController } from "../../../navigators/blank-stack/components/lifecycle/hooks/use-transition-start-controller";
+import type { MotionAnimationValues } from "../../../providers/motion/types";
+import type { MotionGestureValues } from "../../../providers/motion/types";
+import { LifecycleTransitionRequestKind } from "../../../providers/motion/hooks/use-transition-values";
 import { animateToProgress } from "../../../utils/animation/animate-to-progress";
-import { useCloseCompletion } from "../../../components/screen/lifecycle/hooks/use-close-completion";
+import { useCloseCompletion } from "../../../navigators/blank-stack/components/lifecycle/hooks/use-close-completion";
 
 const originalRequestAnimationFrame = globalThis.requestAnimationFrame;
 

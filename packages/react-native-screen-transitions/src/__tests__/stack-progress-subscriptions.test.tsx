@@ -6,7 +6,7 @@ import createProvider from "../utils/create-provider";
 import {
 	readStackProgress,
 	type StackProgressEntry,
-} from "../providers/screen/orchestrator/helpers/stack-progress";
+} from "../providers/orchestrator/helpers/stack-progress";
 
 type Value = {
 	state: { visualProgress: SharedValue<number>; ignored?: number };
@@ -127,10 +127,10 @@ it("selects live handles through real global multi-key subscriptions", () => {
 it("includes real hydration writes in the same suffix read", async () => {
 	const { mountMotionValues } = await import("./helpers/mount-motion-values");
 	const { useInterpolatorState } = await import(
-		"../providers/screen/orchestrator/helpers/use-interpolator-state"
+		"../providers/orchestrator/helpers/use-interpolator-state"
 	);
 	const { hydrateTransitionState } = await import(
-		"../providers/screen/motion/animation/helpers/hydrate-transition-state"
+		"../providers/motion/animation/helpers/hydrate-transition-state"
 	);
 	const { DEFAULT_SCREEN_TRANSITION_OPTIONS } = await import("../constants");
 	const values = mountMotionValues();

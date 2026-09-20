@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react";
 import type { View } from "react-native";
 import type { AnimatedRef } from "react-native-reanimated";
-import { useBuilderStore } from "../../../providers/screen/builder";
+import { useBuilderStore } from "../../../providers/builder";
 import type { BoundTag } from "../../../stores/bounds/types";
 import { prepareStyleForBounds } from "../../../utils/bounds/helpers/styles/styles";
 import { useBoundaryPresence } from "../hooks/lifecycles/use-boundary-presence";

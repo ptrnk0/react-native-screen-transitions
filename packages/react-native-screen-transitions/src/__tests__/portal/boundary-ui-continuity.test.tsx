@@ -13,18 +13,18 @@ const motion = keys.map(() => ({isScreenReady:makeMutable(true),state:{closing:m
 const slotsMap = makeMutable({});
 const orchestrators = frames.map(screenInterpolatorProps => ({screenInterpolatorProps, slotsMap, currentInterpolator: () => ({content:{opacity:1}}), pairPresentation: undefined as any}));
 let currentIndex = 0;
-mock.module("../../providers/screen/builder", () => ({
+mock.module("../../providers/builder", () => ({
  useBuilderStore: (select: any) => select({derivations:{currentScreenKey:keys[currentIndex], destinationPairKey:currentIndex ? `${keys[currentIndex-1]}<>${keys[currentIndex]}` : undefined}}),
  useOptionalBuilderStore: (_keys: any, select: any) => keys.map((_,i) => select({derivations:{destinationPairKey:i ? `${keys[i-1]}<>${keys[i]}` : undefined}})),
 }));
-mock.module("../../providers/screen/builder/topology", () => ({useScreenRelationships: () => ({parentScreenKey:null})}));
-mock.module("../../providers/stack/blank-stack.provider", () => ({useOptionalBlankStackStore: (select:any) => select({scenes})}));
-mock.module("../../providers/screen/motion", () => ({useMotionStore: (select:any) => select(motion[currentIndex]), useOptionalMotionStore: (_keys:any,select:any) => motion.map(select)}));
-mock.module("../../providers/screen/orchestrator", () => ({
+mock.module("../../providers/builder/topology", () => ({useScreenRelationships: () => ({parentScreenKey:null})}));
+mock.module("../../navigators/blank-stack/state/blank-stack.provider", () => ({useOptionalBlankStackStore: (select:any) => select({scenes})}));
+mock.module("../../providers/motion", () => ({useMotionStore: (select:any) => select(motion[currentIndex]), useOptionalMotionStore: (_keys:any,select:any) => motion.map(select)}));
+mock.module("../../providers/orchestrator", () => ({
  useOrchestratorStore: (select:any) => select(orchestrators[0]),
  useOptionalOrchestratorStore: (keys:any,select:any) => keys ? orchestrators.map(select) : null,
 }));
-const {usePairPresentation} = await import("../../providers/screen/orchestrator/helpers/use-pair-presentation");
+const {usePairPresentation} = await import("../../providers/orchestrator/helpers/use-pair-presentation");
 function PairOutputs() {
  for(let i=0;i<keys.length;i++) {currentIndex=i;orchestrators[i].pairPresentation=usePairPresentation(orchestrators[i] as any);}
  currentIndex=0;return null;

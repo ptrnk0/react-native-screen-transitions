@@ -7,9 +7,9 @@ import {
 	withTiming,
 } from "react-native-reanimated";
 import { scheduleOnUI } from "react-native-worklets";
-import { useBuilderStore } from "../../../../providers/screen/builder";
-import { useMotionStore } from "../../../../providers/screen/motion";
-import { useBlankStackStore } from "../../../../providers/stack/blank-stack.provider";
+import { useBlankStackStore } from "../../../../navigators/blank-stack/state/blank-stack.provider";
+import { useBuilderStore } from "../../../../providers/builder";
+import { useMotionStore } from "../../../../providers/motion";
 import {
 	createScreenPairKey,
 	getSourceScreenKeyFromPairKey,

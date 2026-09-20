@@ -1,5 +1,5 @@
-import { updateDerivations } from "../../../providers/screen/orchestrator/helpers/derivations";
-import type { ScreenInterpolatorFrame } from "../../../providers/screen/orchestrator/helpers/pipeline";
+import { updateDerivations } from "../../../providers/orchestrator/helpers/derivations";
+import type { ScreenInterpolatorFrame } from "../../../providers/orchestrator/helpers/pipeline";
 
 export const shouldUseOverlayGestureDriver = (
 	overlayFrame: ScreenInterpolatorFrame,

@@ -28,11 +28,11 @@ let state = {
 	closing: makeMutable(0),
 	route: { key: "home" },
 };
-mock.module("../../providers/stack/blank-stack.provider", () => ({
+mock.module("../../navigators/blank-stack/state/blank-stack.provider", () => ({
 	useBlankStackStore: <T,>(selector: (value: typeof stack) => T) =>
 		useSelection(() => stack, selector),
 }));
-mock.module("../../providers/screen/builder", () => ({
+mock.module("../../providers/builder", () => ({
 	useBuilderStore: <T,>(
 		selector: (value: {
 			derivations: {
@@ -44,7 +44,7 @@ mock.module("../../providers/screen/builder", () => ({
 	) =>
 		selector({ derivations: { currentScreenKey: "home", destinationPairKey } }),
 }));
-mock.module("../../providers/screen/motion", () => ({
+mock.module("../../providers/motion", () => ({
 	useMotionStore: <T,>(selector: (value: { state: typeof state }) => T) =>
 		useSelection(
 			() => state,

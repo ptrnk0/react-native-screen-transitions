@@ -6,9 +6,9 @@ import type {
 } from "../../../stores/bounds/internals/state";
 import type { BoundaryHandoffTarget } from "../../../types/animation.types";
 
-export type { BoundaryPairPresentation } from "../../../providers/screen/orchestrator/helpers/use-pair-presentation";
+export type { BoundaryPairPresentation } from "../../../providers/orchestrator/helpers/use-pair-presentation";
 
-import type { BoundaryPairPresentation } from "../../../providers/screen/orchestrator/helpers/use-pair-presentation";
+import type { BoundaryPairPresentation } from "../../../providers/orchestrator/helpers/use-pair-presentation";
 
 export type BoundaryPresentationState = {
 	presentations: readonly (

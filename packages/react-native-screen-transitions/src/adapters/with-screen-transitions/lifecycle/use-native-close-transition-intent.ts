@@ -1,10 +1,10 @@
 import { useLayoutEffect, useRef } from "react";
-import { resetStoresForScreen } from "../../../components/screen/lifecycle/hooks/helpers/reset-stores-for-screen";
-import { useNavigationHelpers } from "../../../hooks/navigation/use-navigation-helpers";
 import useStableCallback from "../../../hooks/use-stable-callback";
-import type { BaseDescriptor } from "../../../providers/screen/builder";
-import { useScreenRelationships } from "../../../providers/screen/builder/topology";
-import { useOptionalMotionStore } from "../../../providers/screen/motion";
+import { resetStoresForScreen } from "../../../navigators/blank-stack/components/lifecycle/hooks/helpers/reset-stores-for-screen";
+import { useNavigationHelpers } from "../../../navigators/blank-stack/hooks/use-navigation-helpers";
+import type { BaseDescriptor } from "../../../providers/builder";
+import { useScreenRelationships } from "../../../providers/builder/topology";
+import { useOptionalMotionStore } from "../../../providers/motion";
 import {
 	dispatchCloseAction,
 	isCloseActionReplay,

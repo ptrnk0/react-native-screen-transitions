@@ -2,20 +2,20 @@ import { afterEach, beforeEach, expect, it, mock } from "bun:test";
 import { useLayoutEffect } from "react";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
 import type { ScreenTransitionConfig } from "../types";
-import type { ScreenGestureConfig } from "../providers/screen/motion/gestures/types";
+import type { ScreenGestureConfig } from "../providers/motion/gestures/types";
 import {
 	resolveScreenGestureConfig,
 	type GesturePolicyOptions,
-} from "../providers/screen/motion/gestures/shared/policy";
+} from "../providers/motion/gestures/shared/policy";
 
 let options: ScreenTransitionConfig = {};
 let isFirstKey = false;
-mock.module("../providers/screen/builder", () => ({
+mock.module("../providers/builder", () => ({
 	useBuilderStore: (select: (value: any) => unknown) =>
 		select({ options, derivations: { isFirstKey } }),
 }));
 const { useScreenGestureConfig } = await import(
-	"../providers/screen/motion/gestures/ownership/hooks/use-screen-gesture-config"
+	"../providers/motion/gestures/ownership/hooks/use-screen-gesture-config"
 );
 let config: ScreenGestureConfig;
 let publications = 0;

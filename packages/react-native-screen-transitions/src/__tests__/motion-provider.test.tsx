@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, expect, it, mock } from "bun:test";
 import { Activity, useLayoutEffect } from "react";
-import { useInterpolatorState } from "../providers/screen/orchestrator/helpers/use-interpolator-state";
-import { hydrateTransitionState } from "../providers/screen/motion/animation/helpers/hydrate-transition-state";
+import { useInterpolatorState } from "../providers/orchestrator/helpers/use-interpolator-state";
+import { hydrateTransitionState } from "../providers/motion/animation/helpers/hydrate-transition-state";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
 import { ScrollStore } from "../stores/scroll.store";
-import { useTransitionValues } from "../providers/screen/motion/hooks/use-transition-values";
+import { useTransitionValues } from "../providers/motion/hooks/use-transition-values";
 
 // Capture native callbacks while running the real options and gesture hooks.
 function gesture() {
@@ -47,14 +47,14 @@ let options = {
 	gestureDirection: "horizontal" as const,
 	gestureSensitivity: 1,
 };
-mock.module("../providers/stack/blank-stack.provider", () => ({
+mock.module("../navigators/blank-stack/state/blank-stack.provider", () => ({
 	useBlankStackStore: () => {
 		throw new Error("Motion must not read Blank Stack");
 	},
 }));
 let dismissRequest: (() => void) | undefined;
 let animationState: ReturnType<typeof useTransitionValues>;
-mock.module("../providers/screen/builder", () => ({
+mock.module("../providers/builder", () => ({
 	useBuilderStore: (selector: (store: any) => unknown) =>
 		selector({
 			options,
@@ -67,7 +67,7 @@ const {
 	useMotionStore,
 	useOptionalMotionStore,
 	getMotionStore,
-} = await import("../providers/screen/motion/motion.provider");
+} = await import("../providers/motion/motion.provider");
 type Motion = ReturnType<typeof useMotionStore>;
 let local: Motion;
 let remote: Motion | null;

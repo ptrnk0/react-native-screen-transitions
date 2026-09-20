@@ -3,14 +3,14 @@ import {
 	getMotionStore,
 	useMotionStore,
 	useOptionalMotionStore,
-} from "../../providers/screen/motion";
-import { screenTopology } from "../../providers/screen/builder/topology/helpers/create-screen-topology";
-import { snapDescriptorToIndex } from "../../animation/snap-to";
+} from "../../providers/motion";
+import { screenTopology } from "../../providers/builder/topology/helpers/create-screen-topology";
+import { snapDescriptorToIndex } from "../../controls/snap-to";
 import { Activity, useLayoutEffect } from "react";
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
-import { LifecycleTransitionRequestKind } from "../../providers/screen/motion/hooks/use-transition-values";
-import { useContentLayout } from "../../components/screen/container/hooks/use-content-layout";
+import { LifecycleTransitionRequestKind } from "../../providers/motion/hooks/use-transition-values";
+import { useContentLayout } from "../../components/screen-layers/hooks/use-content-layout";
 import { getVisibilityBlockOffset } from "../../utils/visibility-block-offset";
 
 const scenes = Object.fromEntries(
@@ -31,7 +31,7 @@ const scenes = Object.fromEntries(
 );
 
 let hasStack = true;
-mock.module("../../providers/stack/blank-stack.provider", () => ({
+mock.module("../../navigators/blank-stack/state/blank-stack.provider", () => ({
 	useOptionalBlankStackStore: (selector: (store: any) => unknown) =>
 		selector(
 			hasStack
@@ -55,7 +55,7 @@ const {
 	useBuilderStore,
 	useOptionalBuilderStore,
 	getBuilderStore,
-} = await import("../../providers/screen/builder/builder.provider");
+} = await import("../../providers/builder/builder.provider");
 function BuilderProvider({
 	routeKey,
 	children,

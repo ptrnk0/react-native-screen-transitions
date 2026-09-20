@@ -9,7 +9,7 @@ import {
 } from "react";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
 import { View } from "react-native";
-import type { OrchestratorState } from "../../providers/screen/orchestrator/orchestrator.provider";
+import type { OrchestratorState } from "../../providers/orchestrator/orchestrator.provider";
 
 (
 	globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -44,7 +44,7 @@ const useOrchestratorStore = <Selected,>(
 	return resolvedSelector ? resolvedSelector(store) : store;
 };
 
-mock.module("../../providers/screen/motion", () => ({
+mock.module("../../providers/motion", () => ({
 	getMotionStore: () => {
 		throw new Error("Overlay rendering should not request a snap");
 	},
@@ -60,14 +60,14 @@ mock.module("../../providers/screen/motion", () => ({
 	},
 }));
 
-mock.module("../../providers/stack/blank-stack.provider", () => ({
+mock.module("../../navigators/blank-stack/state/blank-stack.provider", () => ({
 	useOptionalBlankStackStore: (selector: (store: null) => unknown) =>
 		selector(null),
 	useBlankStackStore: () => stackState,
 }));
 
 mock.module(
-	"../../providers/screen/orchestrator/orchestrator.provider",
+	"../../providers/orchestrator/orchestrator.provider",
 	() => ({
 		OrchestratorProvider: ({
 			children,
@@ -87,7 +87,7 @@ mock.module(
 	}),
 );
 
-mock.module("../../providers/screen/orchestrator", () => ({
+mock.module("../../providers/orchestrator", () => ({
 	OrchestratorProvider: ({
 		children,
 		screenKey,
@@ -109,10 +109,10 @@ const { OverlayHost } = await import(
 	"../../components/overlay/variations/overlay-host"
 );
 const { useScreenAnimation } = await import(
-	"../../providers/screen/motion/animation/use-screen-animation"
+	"../../providers/motion/animation/use-screen-animation"
 );
 const { useSlotStyles } = await import(
-	"../../providers/screen/orchestrator/styles/hooks/slot-resolvers"
+	"../../providers/orchestrator/styles/hooks/slot-resolvers"
 );
 const Probe = View as ComponentType<Record<string, unknown>>;
 

@@ -5,11 +5,11 @@ import type {
 	PanGestureEvent,
 	PanGestureRuntime,
 	PanReleaseResult,
-} from "../../../providers/screen/motion/gestures/types";
+} from "../../../providers/motion/gestures/types";
 import {
 	buildPanReleasePlan,
 	resolveSnapPanRelease,
-} from "../../../providers/screen/motion/gestures/pan/behavior/pan-release";
+} from "../../../providers/motion/gestures/pan/behavior/pan-release";
 
 const dimensions = {
 	width: 400,

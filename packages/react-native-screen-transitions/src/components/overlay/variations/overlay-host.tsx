@@ -4,14 +4,14 @@ import Animated, {
 	type SharedValue,
 	useDerivedValue,
 } from "react-native-reanimated";
-import { snapDescriptorToIndex } from "../../../animation/snap-to";
-import { useOptionalMotionStore } from "../../../providers/screen/motion";
-import { useOptionalOrchestratorStore } from "../../../providers/screen/orchestrator";
+import { snapDescriptorToIndex } from "../../../controls/snap-to";
+import { useBlankStackStore } from "../../../navigators/blank-stack/state/blank-stack.provider";
+import { useOptionalMotionStore } from "../../../providers/motion";
+import { useOptionalOrchestratorStore } from "../../../providers/orchestrator";
 import {
 	OrchestratorProvider,
 	type OrchestratorState,
-} from "../../../providers/screen/orchestrator/orchestrator.provider";
-import { useBlankStackStore } from "../../../providers/stack/blank-stack.provider";
+} from "../../../providers/orchestrator/orchestrator.provider";
 import type { OverlayProps } from "../../../types/overlay.types";
 import type { FloatOverlayEntry } from "../helpers/get-active-overlay";
 import {

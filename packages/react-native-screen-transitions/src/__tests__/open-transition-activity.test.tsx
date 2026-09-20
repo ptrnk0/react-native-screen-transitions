@@ -3,12 +3,12 @@ import { Activity, useLayoutEffect } from "react";
 import { makeMutable } from "react-native-reanimated";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
 
-mock.module("../providers/screen/builder", () => ({
+mock.module("../providers/builder", () => ({
 	useBuilderStore: (selector: (store: any) => unknown) =>
 		selector({ derivations: { isFirstKey: false } }),
 }));
 const { useOpenTransitionIntent } = await import(
-	"../components/screen/lifecycle/hooks/use-open-transition-intent"
+	"../navigators/blank-stack/components/lifecycle/hooks/use-open-transition-intent"
 );
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;

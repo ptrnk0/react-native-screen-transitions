@@ -2,7 +2,7 @@ import { makeMutable } from "react-native-reanimated";
 import { describe, expect, it } from "bun:test";
 import { retainReadyOverlayResources } from "../../components/overlay/helpers/retain-ready-overlay-resources";
 import type { BaseStackScene as StackScene } from "../../types/stack.types";
-import type { OrchestratorState } from "../../providers/screen/orchestrator/orchestrator.provider";
+import type { OrchestratorState } from "../../providers/orchestrator/orchestrator.provider";
 
 const createScene = (key: string) =>
 	({ route: { key, name: key } }) as StackScene;

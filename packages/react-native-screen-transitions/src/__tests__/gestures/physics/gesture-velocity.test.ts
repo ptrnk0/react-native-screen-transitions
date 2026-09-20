@@ -9,14 +9,14 @@ import {
 	shouldDismissFromPinch,
 	shouldDismissFromProjection,
 	toProgressVelocity,
-} from "../../../providers/screen/motion/gestures/shared/physics";
-import { determineDismissal } from "../../../providers/screen/motion/gestures/shared/targets";
-import { trackPanGesture } from "../../../providers/screen/motion/gestures/pan/behavior/pan-lifecycle";
-import { resolvePanRelease } from "../../../providers/screen/motion/gestures/pan/behavior/pan-release";
-import { trackPinchGesture } from "../../../providers/screen/motion/gestures/pinch/behavior/pinch-lifecycle";
-import { resolvePinchRelease } from "../../../providers/screen/motion/gestures/pinch/behavior/pinch-release";
-import { applyGestureSensitivityToRawChange } from "../../../providers/screen/motion/gestures/ownership/hooks/use-gesture-sensitivity";
-import type { ScreenOptionsContextValue } from "../../../providers/screen/motion/options";
+} from "../../../providers/motion/gestures/shared/physics";
+import { determineDismissal } from "../../../providers/motion/gestures/shared/targets";
+import { trackPanGesture } from "../../../providers/motion/gestures/pan/behavior/pan-lifecycle";
+import { resolvePanRelease } from "../../../providers/motion/gestures/pan/behavior/pan-release";
+import { trackPinchGesture } from "../../../providers/motion/gestures/pinch/behavior/pinch-lifecycle";
+import { resolvePinchRelease } from "../../../providers/motion/gestures/pinch/behavior/pinch-release";
+import { applyGestureSensitivityToRawChange } from "../../../providers/motion/gestures/ownership/hooks/use-gesture-sensitivity";
+import type { ScreenOptionsContextValue } from "../../../providers/motion/options";
 
 type Directions = {
 	horizontal: boolean;

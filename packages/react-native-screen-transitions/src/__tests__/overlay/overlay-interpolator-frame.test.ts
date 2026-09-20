@@ -3,7 +3,7 @@ import {
 	createOverlayInterpolatorFrame,
 	shouldUseOverlayGestureDriver,
 } from "../../components/overlay/helpers/create-overlay-interpolator-frame";
-import type { ScreenInterpolatorFrame } from "../../providers/screen/orchestrator/helpers/pipeline";
+import type { ScreenInterpolatorFrame } from "../../providers/orchestrator/helpers/pipeline";
 
 const createFrame = (key: string, progress: number, stackProgress = progress) =>
 	({

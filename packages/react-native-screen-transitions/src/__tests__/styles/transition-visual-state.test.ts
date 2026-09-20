@@ -4,7 +4,7 @@ import {
 	hasOpenTransitionStarted,
 	isOpenTransitionBlocked,
 	isScreenReady,
-} from "../../providers/screen/motion/helpers/transition-visual-state";
+} from "../../providers/motion/helpers/transition-visual-state";
 
 describe("transition visual state", () => {
 	it("starts an opening transition only after blockers clear and progress advances", () => {

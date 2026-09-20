@@ -9,8 +9,8 @@ import {
 import type { View } from "react-native";
 import type { AnimatedRef } from "react-native-reanimated";
 import { useAnimatedRef, useSharedValue } from "react-native-reanimated";
-import { useBuilderStore } from "../../../providers/screen/builder";
-import { useBlankStackStore } from "../../../providers/stack/blank-stack.provider";
+import { useBlankStackStore } from "../../../navigators/blank-stack/state/blank-stack.provider";
+import { useBuilderStore } from "../../../providers/builder";
 import { createBoundTag } from "../../../stores/bounds/helpers/link-pairs.helpers";
 import type { BoundTag } from "../../../stores/bounds/types";
 import createProvider from "../../../utils/create-provider";

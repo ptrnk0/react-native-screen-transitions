@@ -1,29 +1,29 @@
-import { useMotionValues } from "../providers/screen/motion/hooks/use-motion-values";
+import { useMotionValues } from "../providers/motion/hooks/use-motion-values";
 import { afterEach, expect, it, mock } from "bun:test";
 import { createContext, type ReactNode, useContext, useMemo } from "react";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
 import { useSharedValue } from "react-native-reanimated";
-import { useTransitionValues } from "../providers/screen/motion/hooks/use-transition-values";
-import { screenTopology } from "../providers/screen/builder/topology/helpers/create-screen-topology";
-import { NO_GESTURE_OWNERS } from "../providers/screen/motion/gestures/types";
+import { useTransitionValues } from "../providers/motion/hooks/use-transition-values";
+import { screenTopology } from "../providers/builder/topology/helpers/create-screen-topology";
+import { NO_GESTURE_OWNERS } from "../providers/motion/gestures/types";
 import { NO_CLAIMS } from "../types/ownership.types";
 import { ScrollStore } from "../stores/scroll.store";
 
 const BuilderContext = createContext<any>(null);
 const MotionContext = createContext<any>(null);
-mock.module("../providers/screen/builder", () => ({
+mock.module("../providers/builder", () => ({
 	useBuilderStore: (selector: (state: any) => unknown) =>
 		selector(useContext(BuilderContext)),
 	useOptionalBuilderStore: () => null,
 }));
-mock.module("../providers/screen/motion", () => ({
+mock.module("../providers/motion", () => ({
 	useMotionStore: (selector: ((state: any) => unknown) | readonly string[]) =>
 		Array.isArray(selector)
 			? []
 			: (selector as (state: any) => unknown)(useContext(MotionContext)),
 	useOptionalMotionStore: () => null,
 }));
-mock.module("../providers/stack/blank-stack.provider", () => ({
+mock.module("../navigators/blank-stack/state/blank-stack.provider", () => ({
 	useBlankStackStore: (selector: (state: any) => unknown) =>
 		selector({ routeKeys: [], scenesByKey: {} }),
 	useOptionalBlankStackStore: (selector: (state: any) => unknown) =>
@@ -33,18 +33,18 @@ mock.module("react-native-safe-area-context", () => ({
 	useSafeAreaInsets: () => ({ top: 0, left: 0, right: 0, bottom: 0 }),
 }));
 const { useMotionAnimationPipeline } = await import(
-	"../providers/screen/motion/animation/pipeline"
+	"../providers/motion/animation/pipeline"
 );
 const { useScreenOptions } = await import(
-	"../providers/screen/motion/options/use-screen-options"
+	"../providers/motion/options/use-screen-options"
 );
 const {
 	OrchestratorProvider,
 	useOrchestratorStore,
 	useOptionalOrchestratorStore,
-} = await import("../providers/screen/orchestrator/orchestrator.provider");
+} = await import("../providers/orchestrator/orchestrator.provider");
 const { useSlotStyles, useSlotProps } = await import(
-	"../providers/screen/orchestrator/styles/hooks/slot-resolvers"
+	"../providers/orchestrator/styles/hooks/slot-resolvers"
 );
 
 const parentKey = "slots-parent";

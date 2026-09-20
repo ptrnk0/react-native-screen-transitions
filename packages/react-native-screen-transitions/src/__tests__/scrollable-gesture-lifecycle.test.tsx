@@ -11,7 +11,7 @@ import { type ComponentType, type ReactNode, useState } from "react";
 import { GestureDetector } from "react-native-gesture-handler";
 import { type SharedValue, useSharedValue } from "react-native-reanimated";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
-import type { ScrollGestureCoordination } from "../providers/screen/motion/gestures/ownership/gesture-ownership-coordinator";
+import type { ScrollGestureCoordination } from "../providers/motion/gestures/ownership/gesture-ownership-coordinator";
 import { ScrollStore } from "../stores/scroll.store";
 
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -27,18 +27,18 @@ const EMPTY_COORDINATION: ScrollGestureCoordination = {
 let gestureContext: { routeKey: string } | null = { routeKey: ROUTE_KEY };
 let coordination = EMPTY_COORDINATION;
 
-mock.module("../providers/screen/motion", () => ({
+mock.module("../providers/motion", () => ({
 	useMotionStore: () => [],
 	useOptionalMotionStore: (selector: (store: unknown) => unknown) =>
 		selector(gestureContext ? { gestures: gestureContext } : null),
 }));
 mock.module(
-	"../providers/screen/motion/gestures/ownership/use-gesture-scroll-coordination",
+	"../providers/motion/gestures/ownership/use-gesture-scroll-coordination",
 	() => ({
 		useGestureScrollCoordination: () => coordination,
 	}),
 );
-mock.module("../providers/screen/orchestrator/styles", () => ({
+mock.module("../providers/orchestrator/styles", () => ({
 	useSlotStyles: () => ({}),
 	useSlotProps: () => ({}),
 }));

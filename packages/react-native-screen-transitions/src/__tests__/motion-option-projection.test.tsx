@@ -2,25 +2,25 @@ import { afterEach, beforeEach, expect, it, mock, spyOn } from "bun:test";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
 import type { ScreenTransitionConfig } from "../types";
 import type { BaseStackRoute } from "../types/stack.types";
-import type { MotionAnimationState } from "../providers/screen/motion/animation/helpers/hydrate-transition-state/types";
-import type { ScreenOptionsContextValue } from "../providers/screen/motion/options/types";
-import * as helpers from "../providers/screen/motion/options/helpers";
+import type { MotionAnimationState } from "../providers/motion/animation/helpers/hydrate-transition-state/types";
+import type { ScreenOptionsContextValue } from "../providers/motion/options/types";
+import * as helpers from "../providers/motion/options/helpers";
 import { ScrollStore } from "../stores/scroll.store";
 
 let options: ScreenTransitionConfig = {};
 let route: BaseStackRoute = { key: "option-projection", name: "Detail" };
-mock.module("../providers/screen/builder", () => ({
+mock.module("../providers/builder", () => ({
 	useBuilderStore: (select: (value: any) => unknown) =>
 		select({ options, descriptors: { current: { route, options } } }),
 }));
 const { useMotionValues } = await import(
-	"../providers/screen/motion/hooks/use-motion-values"
+	"../providers/motion/hooks/use-motion-values"
 );
 const { useMotionAnimationPipeline } = await import(
-	"../providers/screen/motion/animation/pipeline"
+	"../providers/motion/animation/pipeline"
 );
 const { useScreenOptions } = await import(
-	"../providers/screen/motion/options/use-screen-options"
+	"../providers/motion/options/use-screen-options"
 );
 const sync = spyOn(helpers, "syncScreenOptionsBase");
 let state: MotionAnimationState;

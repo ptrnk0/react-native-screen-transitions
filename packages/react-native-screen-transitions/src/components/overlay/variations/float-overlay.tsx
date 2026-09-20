@@ -1,4 +1,4 @@
-import { useBlankStackStore } from "../../../providers/stack/blank-stack.provider";
+import { useBlankStackStore } from "../../../navigators/blank-stack/state/blank-stack.provider";
 
 import {
 	getFloatOverlayStack,

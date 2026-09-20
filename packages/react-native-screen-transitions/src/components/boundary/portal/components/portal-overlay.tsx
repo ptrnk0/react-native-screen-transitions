@@ -14,8 +14,8 @@ import Animated, {
 	useAnimatedStyle,
 } from "react-native-reanimated";
 import { NO_STYLES } from "../../../../constants";
-import { useBuilderStore } from "../../../../providers/screen/builder";
-import { composeSlotStyleWithLocalTransform } from "../../../../providers/screen/orchestrator/styles/helpers/compose-slot-style";
+import { useBuilderStore } from "../../../../providers/builder";
+import { composeSlotStyleWithLocalTransform } from "../../../../providers/orchestrator/styles/helpers/compose-slot-style";
 import { resolvePortalOffsetStyle } from "../helpers/offset-style";
 import { useHostMeasurement } from "../hooks/use-host-measurement";
 import { registerHost, unregisterHost } from "../stores/host-registry.store";

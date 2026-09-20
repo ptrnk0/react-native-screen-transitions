@@ -8,7 +8,7 @@ import { NO_STYLES } from "../../../constants";
 import {
 	composeSlotStyleWithLocalTransform,
 	getLocalTransformForSlotComposition,
-} from "../../../providers/screen/orchestrator/styles/helpers/compose-slot-style";
+} from "../../../providers/orchestrator/styles/helpers/compose-slot-style";
 import type { NormalizedTransitionInterpolatedStyle } from "../../../types/animation.types";
 
 export function useComposedBoundaryStyle(

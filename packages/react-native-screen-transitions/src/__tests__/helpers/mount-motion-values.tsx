@@ -1,7 +1,7 @@
 import { afterEach } from "bun:test";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
-import { useMotionValues } from "../../providers/screen/motion/hooks/use-motion-values";
-import type { MotionValues } from "../../providers/screen/motion/types";
+import { useMotionValues } from "../../providers/motion/hooks/use-motion-values";
+import type { MotionValues } from "../../providers/motion/types";
 
 const renderers: ReactTestRenderer[] = [];
 afterEach(() => {

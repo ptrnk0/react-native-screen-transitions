@@ -2,8 +2,8 @@ import { describe, expect, it } from "bun:test";
 import { type ReactNode } from "react";
 import { act, create } from "react-test-renderer";
 import { useOverlaySlot } from "../../components/overlay/hooks/use-overlay-slot";
-import type { OrchestratorState } from "../../providers/screen/orchestrator/orchestrator.provider";
-import type { ScreenInterpolatorFrame } from "../../providers/screen/orchestrator/helpers/pipeline";
+import type { OrchestratorState } from "../../providers/orchestrator/orchestrator.provider";
+import type { ScreenInterpolatorFrame } from "../../providers/orchestrator/helpers/pipeline";
 import { getVisibilityBlockOffset } from "../../utils/visibility-block-offset";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT =

@@ -3,7 +3,7 @@ import { act, create, type ReactTestRenderer } from "react-test-renderer";
 import {
 	useTransitionValues,
 	type MotionTransitionValues,
-} from "../../providers/screen/motion/hooks/use-transition-values";
+} from "../../providers/motion/hooks/use-transition-values";
 
 const renderers: ReactTestRenderer[] = [];
 afterEach(() => {

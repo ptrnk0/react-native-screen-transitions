@@ -2,12 +2,12 @@ import { mountMotionTransitionValues } from "./helpers/mount-transition-values";
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import React from "react";
 import { act, create } from "react-test-renderer";
-import { MotionProvider, getMotionStore } from "../providers/screen/motion";
+import { MotionProvider, getMotionStore } from "../providers/motion";
 let motionRenderer: ReturnType<typeof create>;
 afterEach(() => {
 	act(() => motionRenderer?.unmount());
 });
-import { LifecycleTransitionRequestKind } from "../providers/screen/motion/hooks/use-transition-values";
+import { LifecycleTransitionRequestKind } from "../providers/motion/hooks/use-transition-values";
 import { isCloseActionReplay } from "../utils/navigation/close-action-replay";
 
 let system = mountMotionTransitionValues();
@@ -53,7 +53,7 @@ let softDismissCount: number;
 let blankCloseCount: number;
 let handleBlankClose: boolean;
 
-mock.module("../providers/screen/builder", () => ({
+mock.module("../providers/builder", () => ({
 	useOptionalBuilderStore: () => null,
 	useBuilderStore: (selector: (store: any) => unknown) =>
 		selector({
@@ -65,7 +65,7 @@ mock.module("../providers/screen/builder", () => ({
 		}),
 }));
 
-mock.module("../providers/stack/blank-stack.provider", () => ({
+mock.module("../navigators/blank-stack/state/blank-stack.provider", () => ({
 	useBlankStackStore: (selector: (stack: any) => unknown) =>
 		selector({
 			requestDismiss: requestStackDismiss,
@@ -86,10 +86,10 @@ mock.module("../providers/stack/blank-stack.provider", () => ({
 const { useNativeCloseTransitionIntent } = await import("../adapters/with-screen-transitions/lifecycle/use-native-close-transition-intent");
 
 const { useNavigationHelpers } = await import(
-	"../hooks/navigation/use-navigation-helpers"
+	"../navigators/blank-stack/hooks/use-navigation-helpers"
 );
 const { useCloseTransitionIntent } = await import(
-	"../components/screen/lifecycle/hooks/use-close-transition-intent"
+	"../navigators/blank-stack/components/lifecycle/hooks/use-close-transition-intent"
 );
 
 beforeEach(() => {

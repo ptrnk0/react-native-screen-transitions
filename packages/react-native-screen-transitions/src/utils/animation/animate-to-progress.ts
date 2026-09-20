@@ -1,7 +1,7 @@
 import type { SharedValue } from "react-native-reanimated";
 import { FALSE, TRUE } from "../../constants";
-import { emitMotionStart } from "../../providers/screen/motion/animation/emit-motion-start";
-import type { MotionAnimationValues } from "../../providers/screen/motion/types";
+import { emitMotionStart } from "../../providers/motion/animation/emit-motion-start";
+import type { MotionAnimationValues } from "../../providers/motion/types";
 import type { TransitionSpec } from "../../types/animation.types";
 import { animate, isSpringAnimationConfig } from "./animate";
 

@@ -1,4 +1,4 @@
-import { MotionProvider, getMotionStore } from "../../providers/screen/motion";
+import { MotionProvider, getMotionStore } from "../../providers/motion";
 import { beforeAll, beforeEach, describe, expect, it, mock } from "bun:test";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
 import type { BoundTag } from "../../stores/bounds/types";
@@ -26,13 +26,13 @@ let stackState = {
 	scenes: [] as Array<{ activity: string; route: { key: string } }>,
 };
 
-mock.module("../../providers/screen/builder", () => ({
+mock.module("../../providers/builder", () => ({
 	useOptionalBuilderStore: () => null,
 	useBuilderStore: <T,>(selector: (state: typeof descriptorState) => T) =>
 		selector(descriptorState),
 }));
 
-mock.module("../../providers/stack/blank-stack.provider", () => ({
+mock.module("../../navigators/blank-stack/state/blank-stack.provider", () => ({
 	useBlankStackStore: <T,>(selector: (state: typeof stackState) => T) =>
 		selector(stackState),
 }));

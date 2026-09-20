@@ -6,7 +6,7 @@ import { readFileSync } from "node:fs";
 // these objects, including every shared value in any captured plain object.
 function getVisibilityClosures() {
 	const filename = new URL(
-		"../../providers/screen/motion/hooks/use-maybe-block-visibility.tsx",
+		"../../providers/motion/hooks/use-maybe-block-visibility.tsx",
 		import.meta.url,
 	);
 	const closures: string[][] = [];

@@ -4,8 +4,8 @@ import { beforeAll, describe, expect, it, mock } from "bun:test";
 import React from "react";
 import { act, create } from "react-test-renderer";
 import { ScrollStore } from "../stores/scroll.store";
-import type { BaseDescriptor } from "../providers/screen/builder";
-import { buildScreenTransitionOptions } from "../providers/screen/motion/animation/helpers/build-screen-transition-options";
+import type { BaseDescriptor } from "../providers/builder";
+import { buildScreenTransitionOptions } from "../providers/motion/animation/helpers/build-screen-transition-options";
 import type { ScreenInterpolationProps } from "../types/animation.types";
 
 const descriptors: {
@@ -23,7 +23,7 @@ mock.module("react-native-safe-area-context", () => ({
 }));
 
 
-mock.module("../providers/stack/blank-stack.provider", () => ({
+mock.module("../navigators/blank-stack/state/blank-stack.provider", () => ({
 	useBlankStackStore: (selector: (state: any) => unknown) =>
 		selector({ routeKeys: [], scenesByKey: {} }),
 	useOptionalBlankStackStore: (selector: (state: any) => unknown) =>
@@ -34,7 +34,7 @@ const currentMotion = mountMotionValues();
 const nextMotion = mountMotionValues();
 const currentSystem = mountMotionTransitionValues();
 const nextSystem = mountMotionTransitionValues();
-mock.module("../providers/screen/builder", () => ({
+mock.module("../providers/builder", () => ({
 	useBuilderStore: (
 		selector: (state: { descriptors: typeof descriptors }) => unknown,
 	) => {
@@ -65,7 +65,7 @@ function motionForKey(key: string) {
 		},
 	};
 }
-mock.module("../providers/screen/motion", () => ({
+mock.module("../providers/motion", () => ({
 	useMotionStore: (selector: ((state: any) => unknown) | readonly string[]) =>
 		Array.isArray(selector)
 			? []
@@ -76,12 +76,12 @@ mock.module("../providers/screen/motion", () => ({
 	) => (key ? selector(motionForKey(key)) : null),
 }));
 
-let useScreenAnimationPipeline: typeof import("../providers/screen/orchestrator/helpers/pipeline").useScreenAnimationPipeline;
+let useScreenAnimationPipeline: typeof import("../providers/orchestrator/helpers/pipeline").useScreenAnimationPipeline;
 
 describe("initial interpolator state", () => {
 	beforeAll(async () => {
 		({ useScreenAnimationPipeline } = await import(
-			"../providers/screen/orchestrator/helpers/pipeline"
+			"../providers/orchestrator/helpers/pipeline"
 		));
 	});
 

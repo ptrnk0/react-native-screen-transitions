@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import type { View } from "react-native";
 import { useWindowDimensions } from "react-native";
 import type { AnimatedRef, StyleProps } from "react-native-reanimated";
-import { useMotionStore } from "../../../providers/screen/motion";
+import { useMotionStore } from "../../../providers/motion";
 import { setEntry } from "../../../stores/bounds/internals/entries";
 import {
 	setDestination,

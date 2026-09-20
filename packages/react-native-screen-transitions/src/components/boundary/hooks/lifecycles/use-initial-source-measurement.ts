@@ -1,5 +1,5 @@
 import { useAnimatedReaction, useSharedValue } from "react-native-reanimated";
-import { useBuilderStore } from "../../../../providers/screen/builder";
+import { useBuilderStore } from "../../../../providers/builder";
 import { getPairKeyForSource } from "../../../../stores/bounds/internals/links";
 import { pairs } from "../../../../stores/bounds/internals/state";
 import type { BoundTag } from "../../../../stores/bounds/types";

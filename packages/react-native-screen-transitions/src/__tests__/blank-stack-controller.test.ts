@@ -7,7 +7,7 @@ import type {
 } from "../types/stack.types";
 
 const { createBlankStackController } = await import(
-	"../providers/stack/blank-stack-state/blank-stack-controller"
+	"../navigators/blank-stack/state/blank-stack-controller"
 );
 
 const CHILD_STATE = Symbol("CHILD_STATE");
@@ -62,6 +62,23 @@ beforeEach(() => {
 });
 
 describe("createBlankStackController", () => {
+  it("retains the newly dismissed screen when a gesture-closing screen is removed in the same update", () => {
+    const navigation = createNavigation();
+    const a = createRoute("a");
+    const b = createRoute("b");
+    const c = createRoute("c");
+    const descriptors = { a: createDescriptor(a, navigation), b: createDescriptor(b, navigation), c: createDescriptor(c, navigation) };
+    const controller = createBlankStackController(createProps([a, b, c], descriptors, navigation));
+    controller.requestDismiss({ route: c });
+    controller.update(createProps([a], { a: descriptors.a }, navigation));
+    expect(controller.getSnapshot().state.routeKeys).toEqual(["a", "b"]);
+    expect(controller.getSnapshot().state.closingRouteKeys.has("b")).toBe(true);
+    expect(controller.getSnapshot().state.scenes.find(scene => scene.route.key === "b")?.activity).toBe("closing");
+    controller.handleCloseRoute({ route: b });
+    expect(controller.getSnapshot().state.routeKeys).toEqual(["a"]);
+    expect(navigation.actions).toEqual([]);
+  });
+
 	it("keeps B under C during replacement, then reveals A when C is dismissed", () => {
 		const navigation = createNavigation();
 		const routeA = createRoute("a");

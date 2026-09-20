@@ -1,11 +1,11 @@
 import { describe, expect, it } from "bun:test";
 import type { SharedValue } from "react-native-reanimated";
-import { createGestureOwnershipCoordinator } from "../../../providers/screen/motion/gestures/ownership/gesture-ownership-coordinator";
+import { createGestureOwnershipCoordinator } from "../../../providers/motion/gestures/ownership/gesture-ownership-coordinator";
 import type {
 	GestureOwnerMap,
 	ScreenGestureSource,
-} from "../../../providers/screen/motion/gestures/types";
-import { createScreenTopology } from "../../../providers/screen/builder/topology/helpers/create-screen-topology";
+} from "../../../providers/motion/gestures/types";
+import { createScreenTopology } from "../../../providers/builder/topology/helpers/create-screen-topology";
 import type { ClaimedDirections } from "../../../types/ownership.types";
 
 const noClaims = (): ClaimedDirections => ({

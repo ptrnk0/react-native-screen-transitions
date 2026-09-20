@@ -1,8 +1,8 @@
 import type { Route } from "@react-navigation/native";
 import { useCallback, useMemo } from "react";
-import { snapDescriptorToIndex } from "../../animation/snap-to";
-import { useBuilderStore } from "../../providers/screen/builder";
-import { useBlankStackStore } from "../../providers/stack/blank-stack.provider";
+import { snapDescriptorToIndex } from "../../controls/snap-to";
+import { useBlankStackStore } from "../../navigators/blank-stack/state/blank-stack.provider";
+import { useBuilderStore } from "../../providers/builder";
 import type { ScreenTransitionConfig } from "../../types/screen.types";
 import type { BaseStackNavigation } from "../../types/stack.types";
 

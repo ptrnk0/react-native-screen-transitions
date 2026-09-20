@@ -1,8 +1,8 @@
 import { afterEach, expect, it, mock } from "bun:test";
 import { act, create, type ReactTestRenderer } from "react-test-renderer";
 import type { SharedValue } from "react-native-reanimated";
-import type { MotionAnimationState } from "../providers/screen/motion/animation/helpers/hydrate-transition-state/types";
-import type { ScreenAnimationPipeline } from "../providers/screen/orchestrator/helpers/pipeline";
+import type { MotionAnimationState } from "../providers/motion/animation/helpers/hydrate-transition-state/types";
+import type { ScreenAnimationPipeline } from "../providers/orchestrator/helpers/pipeline";
 import { mountMotionValues } from "./helpers/mount-motion-values";
 
 let dimensions = { width: 400, height: 800, scale: 1, fontScale: 1 };
@@ -19,14 +19,14 @@ mock.module("react-native", () => ({
 mock.module("react-native-safe-area-context", () => ({
 	useSafeAreaInsets: () => insets,
 }));
-mock.module("../providers/screen/builder", () => ({
+mock.module("../providers/builder", () => ({
 	useBuilderStore: (select: (store: any) => any) => select({ descriptors }),
 }));
-mock.module("../providers/stack/blank-stack.provider", () => ({
+mock.module("../navigators/blank-stack/state/blank-stack.provider", () => ({
 	useOptionalBlankStackStore: (select: (store: any) => any) =>
 		select({ routeKeys }),
 }));
-mock.module("../providers/screen/motion", () => ({
+mock.module("../providers/motion", () => ({
 	useMotionStore: (
 		keysOrSelector: string[] | ((store: any) => any),
 		select = (store: any) => store,
@@ -42,7 +42,7 @@ mock.module("../providers/screen/motion", () => ({
 // This fixture tests frame hydration, while listener lifecycle has its own
 // real hook tests. Keep its minimal shared-value mocks out of listener setup.
 mock.module(
-	"../providers/screen/orchestrator/helpers/use-stack-progress-inputs",
+	"../providers/orchestrator/helpers/use-stack-progress-inputs",
 	() => ({
 		useStackProgressInputs: (currentRouteKey: string) => ({
 			entries: {
@@ -66,7 +66,7 @@ mock.module(
 	}),
 );
 const { useScreenAnimationPipeline } = await import(
-	"../providers/screen/orchestrator/helpers/pipeline"
+	"../providers/orchestrator/helpers/pipeline"
 );
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 const renderers: ReactTestRenderer[] = [];

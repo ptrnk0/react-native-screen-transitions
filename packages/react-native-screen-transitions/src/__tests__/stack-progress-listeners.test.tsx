@@ -7,7 +7,7 @@ import { act, create, type ReactTestRenderer } from "react-test-renderer";
 import {
 	readStackProgress,
 	type StackProgressEntry,
-} from "../providers/screen/orchestrator/helpers/stack-progress";
+} from "../providers/orchestrator/helpers/stack-progress";
 
 function mutable<T>(initial: T) {
 	let value = initial;
@@ -53,11 +53,11 @@ mock.module("react-native-worklets", () => ({
 		jobs.push(() => fn(...args)),
 }));
 let hookEntries: readonly StackProgressEntry[] = [];
-mock.module("../providers/stack/blank-stack.provider", () => ({
+mock.module("../navigators/blank-stack/state/blank-stack.provider", () => ({
 	useOptionalBlankStackStore: (select: (store: any) => unknown) =>
 		select({ routeKeys: hookEntries.map((entry) => entry.routeKey) }),
 }));
-mock.module("../providers/screen/motion", () => ({
+mock.module("../providers/motion", () => ({
 	useMotionStore: (keys: readonly string[], select: (store: any) => unknown) =>
 		keys.map((key) => {
 			const entry = hookEntries.find((entry) => entry.routeKey === key);
@@ -71,7 +71,7 @@ const {
 	unregisterStackProgressInputs,
 	useStackProgressInputs,
 } = await import(
-	"../providers/screen/orchestrator/helpers/use-stack-progress-inputs"
+	"../providers/orchestrator/helpers/use-stack-progress-inputs"
 );
 const flush = () => {
 	while (jobs.length) jobs.shift()!();
@@ -182,10 +182,10 @@ it("keeps mapper inputs stable and listener IDs isolated through Activity cleanu
 it("real hydration writes are visible before the registered reader returns its suffix", async () => {
 	const { mountMotionValues } = await import("./helpers/mount-motion-values");
 	const { useInterpolatorState } = await import(
-		"../providers/screen/orchestrator/helpers/use-interpolator-state"
+		"../providers/orchestrator/helpers/use-interpolator-state"
 	);
 	const { hydrateTransitionState } = await import(
-		"../providers/screen/motion/animation/helpers/hydrate-transition-state"
+		"../providers/motion/animation/helpers/hydrate-transition-state"
 	);
 	const { DEFAULT_SCREEN_TRANSITION_OPTIONS } = await import("../constants");
 	const values = mountMotionValues();

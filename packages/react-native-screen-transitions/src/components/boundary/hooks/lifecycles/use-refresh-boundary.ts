@@ -1,6 +1,6 @@
 import { useAnimatedReaction } from "react-native-reanimated";
-import { useBuilderStore } from "../../../../providers/screen/builder";
-import { useOptionalMotionStore } from "../../../../providers/screen/motion";
+import { useBuilderStore } from "../../../../providers/builder";
+import { useOptionalMotionStore } from "../../../../providers/motion";
 import {
 	getPairKeyForDestination,
 	getPairKeyForSource,

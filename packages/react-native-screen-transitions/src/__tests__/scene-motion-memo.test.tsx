@@ -13,7 +13,23 @@ const listeners = new Set<() => void>();
 let motionRenders = 0;
 let descendantValue = 0;
 const passthrough = ({ children }: { children?: ReactNode }) => children;
-mock.module("../providers/stack/blank-stack.provider", () => ({
+mock.module("react-native-gesture-handler", () => ({
+	GestureHandlerRootView: passthrough,
+}));
+mock.module("react-native-safe-area-context", () => ({
+	SafeAreaProvider: passthrough,
+}));
+mock.module("../components/boundary/portal", () => ({
+	PortalProvider: passthrough,
+}));
+mock.module("../components/overlay", () => ({
+	Overlay: { Float: () => null },
+}));
+mock.module("../navigators/blank-stack/components/lifecycle/blank-stack", () => ({
+	BlankStackLifecycle: () => null,
+}));
+mock.module("../navigators/blank-stack/state/blank-stack.provider", () => ({
+	BlankStackProvider: passthrough,
 	useBlankStackStore: (select: (s: any) => unknown) =>
 		useSyncExternalStore(
 			(callback) => {
@@ -25,27 +41,30 @@ mock.module("../providers/stack/blank-stack.provider", () => ({
 			() => select({ scenesByKey: { A: scene } }),
 		),
 }));
-mock.module("../providers/screen/builder", () => ({
+mock.module("../providers/builder", () => ({
 	BuilderProvider: passthrough,
 }));
-mock.module("../hooks/navigation/use-navigation-helpers", () => ({
+mock.module("../navigators/blank-stack/hooks/use-navigation-helpers", () => ({
 	useNavigationHelpers: () => ({ requestDismiss: dismiss }),
 }));
 const dismiss = () => {};
-mock.module("../providers/screen/motion", () => ({
+mock.module("../providers/motion", () => ({
 	MotionProvider: ({ children }: { children: ReactNode }) => {
 		motionRenders++;
 		return children;
 	},
 }));
-mock.module("../providers/screen/orchestrator", () => ({
+mock.module("../providers/orchestrator", () => ({
 	OrchestratorProvider: passthrough,
 }));
-mock.module("../components/activity", () => ({ ActivityScreen: passthrough }));
-mock.module("../components/screen/container", () => ({
-	ScreenContainer: passthrough,
+mock.module("../navigators/blank-stack/components/activity", () => ({
+	ActivityScreen: passthrough,
+	ActivityContainer: passthrough,
 }));
-const { Screen } = await import("../components/screen/screen");
+mock.module("../components/screen-layers", () => ({
+	ScreenLayers: passthrough,
+}));
+const { Screen } = await import("../navigators/blank-stack/components/stack-view");
 let renderer: ReactTestRenderer | undefined;
 afterEach(() => {
 	act(() => renderer?.unmount());

@@ -75,11 +75,11 @@ Builder now invokes `useScreenTopology` for the existing registration, active-ch
 
 The topology graph, subscriptions, relationship resolution, and gesture ownership coordinator are unchanged.
 
-The topology module now lives under `providers/screen/builder/topology`, alongside Builder’s other implementation details.
+The topology module now lives under `providers/builder/topology`, alongside Builder’s other implementation details.
 
 ## Motion and Orchestrator provider split
 
-Composer now mounts Builder → ScreenLifecycle → Motion → Orchestrator → Slots → ScreenContainer. Motion replaces the separate options, gestures, and animation providers. Its internal hooks create the current screen's live options and gesture source, and its keyed state exposes the existing Animation Store shared values.
+Composer now mounts Builder → ScreenLifecycle → Motion → Orchestrator → Slots → ScreenLayers. Motion replaces the separate options, gestures, and animation providers. Its internal hooks create the current screen's live options and gesture source, and its keyed state exposes the existing Animation Store shared values.
 
 Orchestrator owns the previous/current/next animation pipeline, the bounds accessor, and cross-screen gesture ownership registration. The public `useScreenAnimation` hook reads the same interpolation frame and bounds through Orchestrator. Builder supplies the existing close-dependent unregister policy, keeping that Blank Stack subscription outside Motion.
 
@@ -97,7 +97,7 @@ Orchestrator now runs the existing interpolation and slot-resolution hooks and e
 
 The separate Screen Slot provider and registry are removed. Slot hooks and boundary readers consume Orchestrator, and overlays reuse one combined Orchestrator context. Overlay resource retention now tracks the combined owner and driver stores. Slots share Orchestrator's existing retained-state cleanup policy.
 
-Composer now renders Builder → ScreenLifecycle → Motion → Orchestrator → ScreenContainer. Slot normalization, interpolation selection, style composition, and reset calculations are unchanged.
+Composer now renders Builder → ScreenLifecycle → Motion → Orchestrator → ScreenLayers. Slot normalization, interpolation selection, style composition, and reset calculations are unchanged.
 
 ## Simplified slot inputs and cleanup
 
@@ -109,9 +109,9 @@ Removed the `unregisterOnCleanup` option from `createProvider` and the Builder/O
 
 Builder now receives `descriptors`, optional `navigatorKey`, and optional `isActiveScreen` alongside its route key. Its descriptor structure and derivations remain unchanged. `isActiveScreen` defaults to true for hosts rendering a standalone screen.
 
-Motion accepts `onDismissRequest`, passed to the existing pan and pinch release handlers. ScreenContainer accepts the same callback for backdrop dismissal. These callbacks run on the React thread, with gesture release calculations and animation execution unchanged. They report a dismissal request; their return value does not change the gesture release calculation.
+Motion accepts `onDismissRequest`, passed to the existing pan and pinch release handlers. ScreenLayers accepts the same callback for backdrop dismissal. These callbacks run on the React thread, with gesture release calculations and animation execution unchanged. They report a dismissal request; their return value does not change the gesture release calculation.
 
-The generic ScreenComposer contains Builder → Motion → Orchestrator → ScreenContainer. ScreenLifecycle is now composed by `BlankStackScreen`, which reads Blank Stack state and wires its existing navigation handler. StackView and the native-stack adapter both consume that wrapper.
+The `Screen` component in `navigators/blank-stack/components/stack-view.tsx` composes Builder → Motion → Orchestrator → ScreenLayers. It reads Blank Stack scene descriptors and wires navigation dismissal. Blank Stack and the native-stack adapter both consume this component, supplying their respective lifecycle components.
 
 Orchestrator uses optional Blank Stack and Stack Core reads. Without them, stack progress falls back to the local interpolation frame, closing-route gesture shadowing is inactive, and configured transitions are enabled by default. Normal React Native gesture, Reanimated, and safe-area setup is still provided by the host. Descriptor redesign and final public exports remain separate work.
 

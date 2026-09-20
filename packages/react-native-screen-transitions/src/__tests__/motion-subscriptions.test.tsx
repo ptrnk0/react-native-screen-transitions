@@ -22,18 +22,18 @@ const subscribe = (listener: () => void) => {
 		listeners.delete(listener);
 	};
 };
-mock.module("../providers/screen/builder", () => ({
+mock.module("../providers/builder", () => ({
 	useBuilderStore: (select: (store: any) => unknown) =>
 		useSyncExternalStore(subscribe, () => select(snapshot)),
 }));
 const { useMotionAnimationPipeline } = await import(
-	"../providers/screen/motion/animation/pipeline"
+	"../providers/motion/animation/pipeline"
 );
 const { useScreenOptions } = await import(
-	"../providers/screen/motion/options/use-screen-options"
+	"../providers/motion/options/use-screen-options"
 );
 const { useScreenGestureConfig } = await import(
-	"../providers/screen/motion/gestures/ownership/hooks/use-screen-gesture-config"
+	"../providers/motion/gestures/ownership/hooks/use-screen-gesture-config"
 );
 const { mountMotionValues } = await import("./helpers/mount-motion-values");
 let renderer: ReactTestRenderer | undefined;
