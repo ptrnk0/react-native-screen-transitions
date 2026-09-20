@@ -55,12 +55,8 @@ export const PortalOverlay = memo(function PortalOverlay({
 	const { height: viewportHeight, width: viewportWidth } =
 		useWindowDimensions();
 
-	const measurementKey = activeBoundaryHosts.length
-		? activeBoundaryHosts.map((host) => host.portalHostName).join("|")
-		: null;
-
 	const measurement = useHostMeasurement({
-		measurementKey,
+		enabled: activeBoundaryHosts.length > 0,
 		boundaryMeasurements: activeBoundaryHosts.map(
 			(host) => host.localMeasurement,
 		),

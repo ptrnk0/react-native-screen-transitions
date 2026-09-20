@@ -1,125 +1,150 @@
 import { beforeEach, expect, it, mock } from "bun:test";
 
+type Bounds = { x: number; y: number; pageX: number; pageY: number; width: number; height: number };
+type Mutable = { get: () => any; set: (next: any) => void; version: number };
+type Reaction = { prepare: () => any; react: (value: any) => void; inputs: Map<Mutable, number> | null };
+let collecting: Map<Mutable, number> | null = null;
+const mutable = (initial: any): Mutable => {
+ let value = initial;
+ const shared: Mutable = {
+  version: 0,
+  get: () => { collecting?.set(shared, shared.version); return value; },
+  set: (next) => { if (!Object.is(value, next)) { value = next; shared.version++; } },
+ };
+ return shared;
+};
 let measurements = 0;
 let retries = 0;
-let result: { x: number; y: number; pageX: number; pageY: number; width: number; height: number } | null;
-let prepare: () => unknown;
-let react: (value: unknown, previous: unknown) => void;
+let result: Bounds | null;
 let cursor = 0;
-let values: ReturnType<typeof mutable>[] = [];
-const mutable = (initial: any) => {
- let value = initial;
- return {get: () => value, set: (next: any) => {value = next;}};
-};
+let values: Mutable[] = [];
+let reactions: Reaction[] = [];
 mock.module("react-native-reanimated", () => ({
- useDerivedValue: (factory: () => unknown) => ({get:factory}),
  useSharedValue: (value: any) => values[cursor++] ?? (values[cursor - 1] = mutable(value)),
  useAnimatedRef: () => ({}),
- useAnimatedReaction: (p: typeof prepare, r: typeof react) => {prepare = p; react = r;},
- measure: () => {measurements++; return result;},
+ useAnimatedReaction: (prepare: Reaction["prepare"], react: Reaction["react"]) => { reactions.push({prepare, react, inputs: null}); },
+ measure: () => { measurements++; return result; },
  cancelAnimation: () => {},
- withDelay: (_: number, value: any) => {retries++; return value;},
+ withDelay: (_: number, value: any) => { retries++; return value; },
  withTiming: (value: any) => value,
 }));
 const {useHostMeasurement} = await import("../../components/boundary/portal/hooks/use-host-measurement");
 const source = mutable(null);
-const render = (measurementKey: string | null) => {
+const render = (enabled = true) => {
  cursor = 0;
- return useHostMeasurement({measurementKey, boundaryMeasurements: [source]});
+ reactions = [];
+ return useHostMeasurement({enabled, boundaryMeasurements: [source]});
 };
-const tick = (count = 1) => {
- for (let i = 0; i < count; i++) react(prepare(), null);
+const tick = () => {
+ for (const reaction of reactions) {
+  if (reaction.inputs && [...reaction.inputs].every(([input, version]) => input.version === version)) continue;
+  collecting = new Map();
+  const value = reaction.prepare();
+  reaction.inputs = collecting;
+  collecting = null;
+  reaction.react(value);
+ }
 };
+const settle = () => { for (let i = 0; i < 100; i++) tick(); };
+const bounds = (pageY = 0): Bounds => ({x:0, y:0, pageX:0, pageY, width:402, height:874});
 beforeEach(() => {
- measurements = 0; retries = 0; values = []; cursor = 0;
+ measurements = 0; retries = 0; values = []; reactions = []; cursor = 0; collecting = null;
  source.set({bounds: {}, pairKey: "a<>b"});
- result = {x: 0, y: 0, pageX: 804, pageY: 0, width: 402, height: 874};
+ result = bounds();
 });
 
-it("stops measuring and scheduling retries after success", () => {
- const host = render("host");
- tick();
- result!.pageX = 0;
- tick(100);
- expect(host.hostBounds.get()?.pageX).toBe(804);
+it("holds a stable transition snapshot without measuring every frame", () => {
+ const host = render();
+ settle();
+ result = bounds(-180);
+ settle();
+ expect(host.hostBounds.get()?.pageY).toBe(0);
  expect(measurements).toBe(1);
  expect(retries).toBe(0);
 });
 
-for (const invalid of [null, {x:0,y:0,pageX:0,pageY:0,width:0,height:0}]) {
- it(`caps ${invalid === null ? "missing" : "zero-size"} measurements at 20 attempts`, () => {
+it("measures fresh after scrolling and recapturing the same pair", () => {
+ const host = render();
+ settle();
+ result = bounds(-180);
+ source.set({bounds: {}, pairKey: "a<>b"});
+ settle();
+ expect(host.hostBounds.get()?.pageY).toBe(-180);
+ expect(measurements).toBe(2);
+});
+
+it("waits for source capture instead of measuring an initially offscreen host", () => {
+ source.set(null);
+ result = bounds(1800);
+ const host = render();
+ settle();
+ expect(measurements).toBe(0);
+ expect(host.hostBounds.get()).toBeNull();
+ result = bounds(63);
+ source.set({bounds: {}, pairKey:"a<>b"});
+ settle();
+ expect(host.hostBounds.get()?.pageY).toBe(63);
+ expect(measurements).toBe(1);
+});
+
+for (const invalid of [null, {...bounds(), width:0, height:0}]) {
+ it(`bounds retries when the host is ${invalid ? "zero-sized" : "missing"}`, () => {
   result = invalid;
-  const host = render("host");
-  tick(100);
+  const host = render();
+  settle();
+  expect(host.hostBounds.get()).toBeNull();
   expect(measurements).toBe(20);
   expect(retries).toBe(19);
-  expect(host.hostBounds.get()).toBeNull();
-  render("host");
-  tick(100);
+  settle();
   expect(measurements).toBe(20);
  });
 }
 
-it("starts a fresh budget for a different key and stops as soon as it succeeds", () => {
+it("discards old bounds on a failed fresh capture and gives the next capture fresh retries", () => {
+ const host = render();
+ settle();
  result = null;
- render("old-host");
- tick(100);
- const host = render("new-host");
- tick(3);
- expect(measurements).toBe(23);
- result = {x:0,y:0,pageX:0,pageY:0,width:100,height:100};
- tick(100);
- expect(measurements).toBe(24);
- expect(host.hostBounds.get()?.width).toBe(100);
- expect(retries).toBe(22);
+ source.set({bounds:{}, pairKey:"a<>c"});
+ settle();
+ expect(host.hostBounds.get()).toBeNull();
+ expect(measurements).toBe(21);
+ result = bounds(-120);
+ source.set({bounds:{}, pairKey:"a<>c"});
+ settle();
+ expect(host.hostBounds.get()?.pageY).toBe(-120);
+ expect(measurements).toBe(22);
 });
 
-it("accepts a valid measurement on the twentieth attempt", () => {
+it("stops retries as soon as the host can be measured", () => {
  result = null;
- const host = render("host");
- tick(19);
- result = {x:0,y:0,pageX:0,pageY:0,width:100,height:100};
- tick(100);
- expect(measurements).toBe(20);
- expect(host.hostBounds.get()?.width).toBe(100);
- expect(retries).toBe(19);
-});
-
-it("does not measure without a key", () => {
- render(null);
- tick(100);
- expect(measurements).toBe(0);
- expect(retries).toBe(0);
-});
-
- it("waits for source capture before caching the host position", () => {
-  source.set(null);
-  result!.pageY = 1812;
-  const host = render("host");
-  tick(100);
-  expect(measurements).toBe(0);
-  expect(retries).toBe(0);
-  expect(host.hostBounds.get()).toBeNull();
-  result!.pageY = 63;
-  source.set({bounds: {}, pairKey: "a<>b"});
-  tick(100);
-  expect(host.hostBounds.get()?.pageY).toBe(63);
-  expect(measurements).toBe(1);
-  expect(retries).toBe(0);
- });
-
-it("withholds a previous key's bounds until the new key is measured", () => {
- const old = render("old");
+ const host = render();
  tick();
- expect(old.hostBounds.get()).not.toBeNull();
+ const before = measurements;
+ result = bounds(24);
+ settle();
+ expect(measurements).toBe(before + 1);
+ expect(host.hostBounds.get()?.pageY).toBe(24);
+});
+
+it("clears the snapshot and stops pending retries when disabled", () => {
  result = null;
- const next = render("new");
- expect(next.hostBounds.get()).toBeNull();
- tick(3);
- expect(next.hostBounds.get()).toBeNull();
- result = {x:0,y:0,pageX:12,pageY:24,width:100,height:100};
+ render();
  tick();
- expect(next.hostBounds.get()?.pageX).toBe(12);
- tick(100);
- expect(measurements).toBe(5);
+ const before = measurements;
+ const host = render(false);
+ settle();
+ expect(measurements).toBe(before);
+ expect(host.hostBounds.get()).toBeNull();
+});
+
+it("measures fresh when re-enabled even if the source capture is unchanged", () => {
+ render();
+ settle();
+ render(false);
+ settle();
+ result = bounds(120);
+ const host = render();
+ settle();
+ expect(host.hostBounds.get()?.pageY).toBe(120);
+ expect(measurements).toBe(2);
 });
