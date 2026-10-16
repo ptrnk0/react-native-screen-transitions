@@ -160,13 +160,23 @@ const buildBaseScenes = ({
 			!previousState ||
 			Object.is(previousState.routeChildStates[route.key], routeChildState);
 
-		const sourceDescriptor = childStateUnchanged
-			? resolveStableDescriptorSource({
-					routeKey: route.key,
-					sourceDescriptor: rawSourceDescriptor,
-					previousState,
-				})
-			: rawSourceDescriptor;
+		const previousRoute = previousState?.descriptors[route.key]?.route;
+		const routeUnchanged =
+			!previousState ||
+			(!!previousRoute &&
+				areRecordsShallowEqual(
+					previousRoute as unknown as Record<string, unknown>,
+					route as unknown as Record<string, unknown>,
+				));
+
+		const sourceDescriptor =
+			childStateUnchanged && routeUnchanged
+				? resolveStableDescriptorSource({
+						routeKey: route.key,
+						sourceDescriptor: rawSourceDescriptor,
+						previousState,
+					})
+				: rawSourceDescriptor;
 
 		const activity = getSceneActivity({
 			...activityWindow,
