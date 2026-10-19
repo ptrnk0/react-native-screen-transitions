@@ -78,3 +78,26 @@ export const resolveScreenVisibilityGate = ({
 			}),
 	};
 };
+
+/**
+ * A screen that never runs an open transition (the first route of a stack,
+ * unless `experimental_animateOnInitialMount` is set) must not start blocked:
+ * nothing would ever drive its progress past zero, so its visibility would
+ * hinge on a later UI-thread style update alone. If that update is lost, the
+ * screen stays parked off-screen.
+ */
+export const resolveInitialVisibilityBlocked = ({
+	isFloatingOverlay,
+	isFirstKey,
+	animateOnInitialMount,
+}: {
+	isFloatingOverlay?: boolean;
+	isFirstKey: boolean;
+	animateOnInitialMount?: boolean;
+}): boolean => {
+	if (isFloatingOverlay) {
+		return false;
+	}
+
+	return !(isFirstKey && !animateOnInitialMount);
+};

@@ -12,7 +12,10 @@ import { getVisibilityBlockOffset } from "../../../../utils/visibility-block-off
 import { useDescriptorsStore } from "../../descriptors";
 import { hasCloseTransitionFinished } from "../helpers/transition-visual-state";
 import { resolveVisibilityBlockOwnership } from "../helpers/visibility-block-ownership";
-import { resolveScreenVisibilityGate } from "../helpers/visibility-gate";
+import {
+	resolveInitialVisibilityBlocked,
+	resolveScreenVisibilityGate,
+} from "../helpers/visibility-gate";
 
 type Params = {
 	ancestorVisibilityBlocked: SharedValue<boolean> | null;
@@ -34,9 +37,21 @@ export const useMaybeBlockVisibility = ({
 		pendingLifecycleRequestKind,
 	} = SystemStore.getBag(currentScreenKey);
 
+	const isFirstKey = useDescriptorsStore(
+		(store) => store.derivations.isFirstKey,
+	);
+	const animateOnInitialMount = useDescriptorsStore(
+		(store) => store.options.experimental_animateOnInitialMount,
+	);
+	const initiallyBlocked = resolveInitialVisibilityBlocked({
+		isFloatingOverlay,
+		isFirstKey,
+		animateOnInitialMount,
+	});
+
 	const hasVisibilityGateOpened = useSharedValue(false);
-	const localVisibilityBlocked = useSharedValue(!isFloatingOverlay);
-	const effectiveVisibilityBlocked = useSharedValue(!isFloatingOverlay);
+	const localVisibilityBlocked = useSharedValue(initiallyBlocked);
+	const effectiveVisibilityBlocked = useSharedValue(initiallyBlocked);
 
 	useAnimatedReaction(
 		() => {

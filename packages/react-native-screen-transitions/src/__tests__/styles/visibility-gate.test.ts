@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { LifecycleTransitionRequestKind } from "../../stores/system.store";
 import {
 	resolveInitialDestinationStyleGate,
+	resolveInitialVisibilityBlocked,
 	resolveScreenVisibilityGate,
 } from "../../providers/screen/styles/helpers/visibility-gate";
 
@@ -104,5 +105,33 @@ describe("resolveInitialDestinationStyleGate", () => {
 			shouldMarkStylesReady: false,
 			shouldWithholdStyles: false,
 		});
+	});
+});
+
+describe("resolveInitialVisibilityBlocked", () => {
+	it("starts the first screen of a stack visible", () => {
+		expect(resolveInitialVisibilityBlocked({ isFirstKey: true })).toBe(false);
+	});
+
+	it("starts the first screen blocked when it animates on initial mount", () => {
+		expect(
+			resolveInitialVisibilityBlocked({
+				isFirstKey: true,
+				animateOnInitialMount: true,
+			}),
+		).toBe(true);
+	});
+
+	it("starts pushed screens blocked until their open transition begins", () => {
+		expect(resolveInitialVisibilityBlocked({ isFirstKey: false })).toBe(true);
+	});
+
+	it("never blocks floating overlays", () => {
+		expect(
+			resolveInitialVisibilityBlocked({
+				isFloatingOverlay: true,
+				isFirstKey: false,
+			}),
+		).toBe(false);
 	});
 });
